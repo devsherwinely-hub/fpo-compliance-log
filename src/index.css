@@ -20,6 +20,16 @@
     --alert-text: 252 165 165;
     color-scheme: dark;
   }
+  /* Native <select> popups render with whatever color-scheme is active on
+     <html>; in dark mode some browsers keep the popup's own text/background
+     from the page's dark tokens while others force a stock dark listbox,
+     producing unreadable (near-invisible) options. Pin selects to light so
+     the native dropdown list is always a light listbox with dark text,
+     regardless of app theme — only the closed control (styled by Tailwind
+     classes below) follows dark mode. */
+  select {
+    color-scheme: light;
+  }
   html {
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;

@@ -295,20 +295,10 @@ function TaskCard({
                   </p>
                 );
               }
-              const isToggle = f.type === 'checkbox' || f.type === 'yesno' || (f.type === 'select' && f.options!.length <= 3);
               return (
-                <label key={f.key} className={`flex gap-2 text-[12.5px] text-stone-600 dark:text-stone-400 ${isToggle ? 'flex-row items-center' : 'flex-col'}`}>
-                  {isToggle ? (
-                    <>
-                      <FieldInput f={f} value={fields[f.key!] ?? ''} onChange={(v) => set(f.key!, v)} />
-                      <span>{f.label}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="font-medium">{f.label}</span>
-                      <FieldInput f={f} value={fields[f.key!] ?? ''} onChange={(v) => set(f.key!, v)} />
-                    </>
-                  )}
+                <label key={f.key} className="flex flex-col gap-1.5 text-[12.5px] text-stone-600 dark:text-stone-400">
+                  <span className="font-medium">{f.label}</span>
+                  <FieldInput f={f} value={fields[f.key!] ?? ''} onChange={(v) => set(f.key!, v)} />
                 </label>
               );
             })}

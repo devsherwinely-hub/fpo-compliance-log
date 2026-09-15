@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   LOCATIONS,
@@ -145,6 +145,7 @@ function PeriodBreakdown({
 interface AttentionItem {
   key: string;
   title: string;
+  loc: string;
   freq: ChecklistFrequency;
   severity: 'critical' | 'warn';
   statusLabel: string;
@@ -163,18 +164,32 @@ const ATTENTION_BADGE: Record<AttentionItem['severity'], string> = {
 // Prioritized, itemized, actionable — replaces the separate flagged/overdue
 // banners from Phase 1 with one section instead of stacking several.
 function NeedsAttention({ items, onReview }: { items: AttentionItem[]; onReview: (freq: ChecklistFrequency) => void }) {
+  const [loc, setLoc] = useState('All');
+  const filtered = loc === 'All' ? items : items.filter((i) => i.loc === loc || i.loc === 'all');
+
   return (
     <section className="glass-card overflow-hidden rounded-2xl">
-      <div className="border-b border-stone-900/5 px-4 py-3 dark:border-white/10 sm:px-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-900/5 px-4 py-3 dark:border-white/10 sm:px-5">
         <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-100">Needs attention</h3>
+        <select
+          value={loc}
+          onChange={(e) => setLoc(e.target.value)}
+          aria-label="Filter needs-attention by location"
+          className="h-8 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3 text-xs font-medium text-stone-800 dark:text-stone-100"
+        >
+          <option value="All">All locations</option>
+          {LOCATIONS.map((l) => (
+            <option key={l} value={l}>{l}</option>
+          ))}
+        </select>
       </div>
-      {items.length === 0 ? (
+      {filtered.length === 0 ? (
         <p className="px-4 py-4 text-[13px] text-emerald-700 dark:text-emerald-400 sm:px-5">
           Nothing needs attention. All caught up.
         </p>
       ) : (
         <ul className="divide-y divide-stone-900/5 dark:divide-white/10">
-          {items.map((item) => (
+          {filtered.map((item) => (
             <li key={item.key} className="flex items-center gap-3 px-4 py-2.5 sm:px-5">
               <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${ATTENTION_DOT[item.severity]}`} />
               <div className="min-w-0 flex-1">
@@ -278,6 +293,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoSection, onVie
           issueItems.push({
             key: `issue:${t.id}:${loc}`,
             title: loc === 'all' ? t.name : `${t.name} — ${loc}`,
+            loc,
             freq: t.freq,
             severity: 'critical',
             statusLabel: 'Flagged',
@@ -295,6 +311,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoSection, onVie
           dueSoonItems.push({
             key: `duesoon:${t.id}:${loc}`,
             title: loc === 'all' ? t.name : `${t.name} — ${loc}`,
+            loc,
             freq: t.freq,
             severity: 'warn',
             statusLabel: 'Due soon',
@@ -341,6 +358,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoSection, onVie
       g.locs.map((loc) => ({
         key: `overdue:${g.name}:${loc}`,
         title: loc === 'all' ? g.name : `${g.name} — ${loc}`,
+        loc,
         freq: 'daily' as ChecklistFrequency,
         severity: 'critical' as const,
         statusLabel: 'Overdue',
@@ -404,14 +422,14 @@ export function Overview({ records, locFilter, onLocChange, onGotoSection, onVie
         ]}
       />
 
-      <NeedsAttention items={data.attentionItems} onReview={onGotoSection} />
-
       <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <TrendCard records={records} locFilter={locFilter} />
         </div>
         <DonutCard records={records} locFilter={locFilter} />
       </div>
+
+      <NeedsAttention items={data.attentionItems} onReview={onGotoSection} />
 
       <section className="glass-card rounded-2xl p-4 sm:p-5">
         <div className="mb-2 flex items-baseline justify-between">
