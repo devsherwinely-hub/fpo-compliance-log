@@ -26,12 +26,12 @@ interface ChecklistSectionProps {
 }
 
 function ToggleGroup({
-  fieldKey,
+  label,
   options,
   value,
   onChange,
 }: {
-  fieldKey: string;
+  label: string;
   options: string[];
   value: string;
   onChange: (v: string) => void;
@@ -53,7 +53,7 @@ function ToggleGroup({
     <div
       className="segmented inline-flex"
       role="radiogroup"
-      aria-label={fieldKey}
+      aria-label={label}
       onKeyDown={onKeyDown}
     >
       {options.map((o) => {
@@ -96,10 +96,10 @@ function FieldInput({
   onChange: (v: string) => void;
 }) {
   if (f.type === 'yesno') {
-    return <ToggleGroup fieldKey={f.key!} options={['Yes', 'No']} value={value} onChange={onChange} />;
+    return <ToggleGroup label={f.label} options={['Yes', 'No']} value={value} onChange={(v) => onChange(v.toLowerCase())} />;
   }
   if (f.type === 'select' && f.options && f.options.length <= 3) {
-    return <ToggleGroup fieldKey={f.key!} options={f.options} value={value} onChange={onChange} />;
+    return <ToggleGroup label={f.label} options={f.options} value={value} onChange={onChange} />;
   }
   if (f.type === 'select') {
     return (
