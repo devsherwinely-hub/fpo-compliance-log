@@ -31,6 +31,7 @@ const SECTION_TITLES: Record<NavSectionId, string> = {
 };
 
 const DEFAULT_TAB_KEY = 'fpo-default-tab';
+const RAIL_KEY = 'fpo-rail-collapsed';
 
 const CONTENT_TABS: NavSectionId[] = ['overview', 'daily', 'weekly', 'monthly', 'history'];
 
@@ -49,6 +50,24 @@ const TAB_TRANSITION = { type: 'spring', bounce: 0, duration: 0.35 } as const;
 export function Dashboard({ user }: { user: User | null }) {
   const [section, setSection] = useState<NavSectionId>(readDefaultTab);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [railCollapsed, setRailCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(RAIL_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const toggleRailCollapsed = () => {
+    setRailCollapsed((c) => {
+      const next = !c;
+      try {
+        localStorage.setItem(RAIL_KEY, next ? '1' : '0');
+      } catch {
+        // private mode etc.
+      }
+      return next;
+    });
+  };
   const [overviewLoc, setOverviewLoc] = useState('All');
   const [defaultTab, setDefaultTab] = useState<NavSectionId>(readDefaultTab);
 
@@ -145,9 +164,11 @@ export function Dashboard({ user }: { user: User | null }) {
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         user={user}
+        collapsed={railCollapsed}
+        onToggleCollapsed={toggleRailCollapsed}
       />
 
-      <div className="lg:pl-64">
+      <div className={`transition-[padding] duration-300 ${railCollapsed ? 'lg:pl-[72px]' : 'lg:pl-64'}`}>
         <TopBar
           onMenuClick={() => setSidebarOpen(true)}
           dateLabel={DATE_LABEL}

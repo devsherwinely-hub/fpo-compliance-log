@@ -43,10 +43,19 @@ const VALUE_STYLES: Record<string, string> = {
   danger: 'text-alert-text',
 };
 const BAR_STYLES: Record<string, string> = {
-  ok: 'bg-emerald-600 dark:bg-emerald-400',
-  warn: 'bg-amber-600 dark:bg-amber-400',
-  danger: 'bg-alert-text',
+  ok: 'bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500',
+  warn: 'bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-400 dark:to-amber-500',
+  danger: 'bg-gradient-to-r from-red-500 to-alert-text dark:from-red-400 dark:to-alert-text',
 };
+
+function WarningIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+      <path d="M12 9v4M12 17h.01" />
+    </svg>
+  );
+}
 
 const CARD_SPRING = { type: 'spring', bounce: 0, duration: 0.5 } as const;
 
@@ -226,14 +235,19 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           transition={CARD_SPRING}
           className="rounded-2xl border border-alert-border bg-alert-bg px-4 py-3.5"
         >
-          <h2 className="text-sm font-semibold text-alert-text">
-            {data.flagged.length} reading{data.flagged.length > 1 ? 's' : ''} need attention
-          </h2>
-          <ul className="mt-1.5 space-y-1">
-            {data.flagged.map((n) => (
-              <li key={n} className="text-[13px] text-alert-text">• {n}</li>
-            ))}
-          </ul>
+          <div className="flex items-start gap-2">
+            <WarningIcon className="mt-0.5 shrink-0 text-alert-text" />
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm font-semibold text-alert-text">
+                {data.flagged.length} reading{data.flagged.length > 1 ? 's' : ''} need attention
+              </h2>
+              <ul className="mt-1.5 space-y-1 pl-4">
+                {data.flagged.map((n) => (
+                  <li key={n} className="list-disc text-[13px] text-alert-text marker:text-alert-border">{n}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </motion.section>
       )}
       {data.overdueCount > 0 && (
@@ -244,19 +258,24 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           transition={CARD_SPRING}
           className="rounded-2xl border border-alert-border bg-alert-bg px-4 py-3.5"
         >
-          <h2 className="text-sm font-semibold text-alert-text">
-            {data.overdueCount} item{data.overdueCount > 1 ? 's' : ''} from yesterday still unlogged
-          </h2>
-          <ul className="mt-1.5 space-y-1">
-            {data.overdueGroups.map((g) => (
-              <li key={g.name} className="text-[13px] text-alert-text">
-                • {g.name} —{' '}
-                {g.locs.length === data.locScope && data.locScope > 1
-                  ? `all ${data.locScope} locations`
-                  : g.locs.join(', ')}
-              </li>
-            ))}
-          </ul>
+          <div className="flex items-start gap-2">
+            <WarningIcon className="mt-0.5 shrink-0 text-alert-text" />
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm font-semibold text-alert-text">
+                {data.overdueCount} item{data.overdueCount > 1 ? 's' : ''} from yesterday still unlogged
+              </h2>
+              <ul className="mt-1.5 space-y-1 pl-4">
+                {data.overdueGroups.map((g) => (
+                  <li key={g.name} className="list-disc text-[13px] text-alert-text marker:text-alert-border">
+                    {g.name} —{' '}
+                    {g.locs.length === data.locScope && data.locScope > 1
+                      ? `all ${data.locScope} locations`
+                      : g.locs.join(', ')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </motion.section>
       )}
 
