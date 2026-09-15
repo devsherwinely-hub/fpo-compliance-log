@@ -90,7 +90,7 @@ export function TrendCard({ records, locFilter }: { records: RecordMap; locFilte
   const summary = `Logged ${data.logged} of ${data.possible} daily checklists over the last 14 days. Trend ${trendWord} ${Math.abs(data.delta)} points versus the prior week.`;
 
   return (
-    <section aria-label="14-day compliance trend" className="glass-card rounded-2xl p-4 sm:p-5">
+    <section aria-label="14-day compliance trend" className="glass-card h-full rounded-2xl p-4 sm:p-5">
       <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-100">Daily trend</h3>
