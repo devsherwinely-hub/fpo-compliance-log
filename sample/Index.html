@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FPO Safety & Compliance Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F8FAFC;
+    --surface:#FFFFFF;
+    --surface-2:#F1F5F9;
+    --ink:#0F172A;
+    --ink-soft:#475569;
+    --ink-faint:#64748B;
+    --border:#E2E8F0;
+    --border-strong:#CBD5E1;
+    --primary:#1E40AF;
+    --primary-soft:#EFF6FF;
+    --secondary:#3B82F6;
+    --accent:#B45309;
+    --accent-bg:#FEF3E2;
+    --danger:#B91C1C;
+    --danger-bg:#FEE2E2;
+    --success:#047857;
+    --success-bg:#ECFDF5;
+    --ring:#1E40AF;
+    --on-solid:#FFFFFF;
+    --radius-sm:6px;
+    --radius-md:8px;
+    --radius-lg:10px;
+    --shadow-1:0 1px 2px rgba(15,23,42,0.06);
+    --shadow-2:0 4px 12px rgba(15,23,42,0.08);
+    --ease-out:cubic-bezier(0.23,1,0.32,1);
+    --ease-in-out:cubic-bezier(0.77,0,0.175,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0B1220;
+      --surface:#111827;
+      --surface-2:#1A2333;
+      --ink:#E2E8F0;
+      --ink-soft:#B4BFCC;
+      --ink-faint:#94A3B8;
+      --border:#1F2A3C;
+      --border-strong:#2C3A50;
+      --primary:#60A5FA;
+      --primary-soft:#15223A;
+      --secondary:#3B82F6;
+      --accent:#F59E0B;
+      --accent-bg:#3A2A12;
+      --danger:#F87171;
+      --danger-bg:#3B1220;
+      --success:#34D399;
+      --success-bg:#0F2E22;
+      --ring:#60A5FA;
+      --on-solid:#0B1220;
+      --shadow-1:0 1px 2px rgba(0,0,0,0.4);
+      --shadow-2:0 4px 16px rgba(0,0,0,0.5);
+    }
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Fira Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fira Sans', sans-serif;
+    margin:0;
+    color:var(--ink);
+    letter-spacing:-0.01em;
+  }
+  .stamp{ font-family:'Fira Code', monospace; letter-spacing:0; font-variant-numeric:tabular-nums; }
+  button, select, input, textarea{ font-family:inherit; }
+  ::selection{ background:var(--primary); color:var(--on-solid); }
+  :focus-visible{ outline:2px solid var(--ring); outline-offset:2px; }
+
+  /* ---- Top bar ---- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 24px;
+    border-bottom:1px solid var(--border);
+    background:var(--surface);
+    position:sticky;
+    top:0;
+    z-index:20;
+    box-shadow:var(--shadow-1);
+  }
+  .topbar .brand h1{ font-size:18px; font-weight:700; }
+  .topbar .brand .sub{ font-size:12.5px; color:var(--ink-soft); margin-top:2px; }
+  .topbar .date{ font-family:'Fira Code', monospace; font-size:12.5px; color:var(--ink-soft); text-align:right; }
+
+  /* ---- Layout ---- */
+  .shell{ display:flex; min-height:calc(100vh - 62px); }
+  .rail{
+    width:212px;
+    flex-shrink:0;
+    border-right:1px solid var(--border);
+    padding:16px 0;
+    background:var(--surface);
+    position:sticky;
+    top:62px;
+    align-self:flex-start;
+    height:calc(100vh - 62px);
+    overflow-y:auto;
+  }
+  .rail button{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:calc(100% - 16px);
+    margin:0 8px;
+    text-align:left;
+    padding:9px 12px;
+    background:none;
+    border:none;
+    border-radius:var(--radius-sm);
+    font-family:'Fira Sans', sans-serif;
+    font-size:13.5px;
+    font-weight:500;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:background-color 150ms ease, color 150ms ease;
+  }
+  .rail button svg{ flex-shrink:0; opacity:0.75; }
+  .rail button.active{
+    color:var(--primary);
+    font-weight:600;
+    background:var(--primary-soft);
+  }
+  .rail button.active svg{ opacity:1; }
+  @media (hover:hover) and (pointer:fine){
+    .rail button:hover:not(.active){ color:var(--ink); background:var(--surface-2); }
+  }
+  .rail .rail-label{
+    font-size:10.5px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-faint);
+    padding:14px 20px 6px;
+  }
+  .rail .rail-label:first-child{ padding-top:4px; }
+
+  main{ flex:1; padding:22px 28px 56px; max-width:1040px; }
+
+  /* ---- Overview cards ---- */
+  .ring-row{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:24px; }
+  .ring-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:16px 18px;
+    min-width:170px;
+    flex:1;
+    box-shadow:var(--shadow-1);
+    transition:box-shadow 150ms ease, border-color 150ms ease;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .ring-card:hover{ box-shadow:var(--shadow-2); border-color:var(--border-strong); }
+  }
+  .ring-card .label{ font-size:12.5px; color:var(--ink-soft); font-weight:500; }
+  .ring-card .value{ font-family:'Fira Code', monospace; font-size:30px; font-weight:600; margin-top:6px; letter-spacing:-0.02em; }
+  .ring-card .sub{ font-size:12px; color:var(--ink-faint); margin-top:4px; }
+  .ring-card.warn .value{ color:var(--accent); }
+  .ring-card.danger .value{ color:var(--danger); }
+  .ring-card.ok .value{ color:var(--success); }
+  .bar-track{ height:5px; background:var(--surface-2); margin-top:10px; border-radius:3px; overflow:hidden; }
+  .bar-fill{ height:100%; background:var(--success); border-radius:3px; transition:width 400ms var(--ease-out); }
+  .ring-card.warn .bar-fill{ background:var(--accent); }
+  .ring-card.danger .bar-fill{ background:var(--danger); }
+
+  .outstanding-list{ list-style:none; padding:0; margin:0 0 24px; }
+  .outstanding-list li{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 12px; border-bottom:1px solid var(--border); font-size:13.5px;
+    border-radius:var(--radius-sm);
+    transition:background-color 150ms ease;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .outstanding-list li:hover{ background:var(--surface-2); }
+  }
+
+  .loc-table-wrap{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); margin-bottom:24px; overflow:hidden; }
+  .loc-table{ width:100%; border-collapse:collapse; font-size:13px; }
+  .loc-table th{
+    text-align:center; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em;
+    color:var(--ink-faint); padding:10px 8px; border-bottom:1px solid var(--border); background:var(--surface-2);
+  }
+  .loc-table td{ text-align:center; padding:12px 8px; border-bottom:1px solid var(--border); }
+  .loc-table tbody tr:last-child td{ border-bottom:none; }
+  .loc-table tbody tr{ transition:background-color 150ms ease; }
+  @media (hover:hover) and (pointer:fine){
+    .loc-table tbody tr:hover{ background:var(--surface-2); }
+  }
+  .loc-table .loc-name{ text-align:left; font-weight:600; padding-left:16px; }
+  .loc-pct{ font-family:'Fira Code', monospace; font-weight:600; font-size:14px; }
+  .loc-pct.ok{ color:var(--success); }
+  .loc-pct.warn{ color:var(--accent); }
+  .loc-pct.danger{ color:var(--danger); }
+  .loc-sub{ font-size:11px; color:var(--ink-faint); font-family:'Fira Code', monospace; }
+
+  .alert-box{
+    display:flex; gap:10px;
+    border:1px solid var(--danger);
+    background:var(--danger-bg);
+    border-radius:var(--radius-md);
+    padding:14px 16px;
+    margin-bottom:16px;
+    font-size:13.5px;
+  }
+  .alert-box svg{ flex-shrink:0; color:var(--danger); margin-top:1px; }
+  .alert-box strong{ display:block; margin-bottom:4px; font-size:14px; color:var(--danger); }
+  .alert-box ul{ margin:6px 0 0; padding-left:18px; }
+
+  /* ---- Section headers ---- */
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; padding-bottom:0;}
+  .section-head h2{ font-size:16px; font-weight:700; }
+  .section-head .period{ font-family:'Fira Code', monospace; font-size:12px; color:var(--ink-faint); }
+
+  /* ---- Checklist card ---- */
+  .task-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    padding:14px 16px;
+    margin-bottom:8px;
+    transition:box-shadow 150ms ease, border-color 150ms ease;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .task-card:hover{ box-shadow:var(--shadow-1); border-color:var(--border-strong); }
+  }
+  .task-card.done{ border-left:3px solid var(--success); }
+  .task-card.overdue{ border-left:3px solid var(--danger); }
+  .task-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
+  .task-title{ font-size:14.5px; font-weight:600; }
+  .task-loc{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  .loc-picker{
+    margin-top:6px;
+    font-family:'Fira Sans', sans-serif;
+    font-size:12.5px;
+    padding:4px 8px;
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    background:var(--surface);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .task-meta{ font-size:12.5px; color:var(--ink-soft); margin-top:6px; }
+  .summary-ledger{ margin-top:8px; border-collapse:collapse; font-size:13px; }
+  .summary-ledger td{ padding:3px 14px 3px 0; vertical-align:top; }
+  .summary-ledger td:first-child{ color:var(--ink-soft); white-space:nowrap; }
+  .summary-ledger td:last-child{ font-weight:600; color:var(--ink); font-family:'Fira Code', monospace; }
+  .badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:'Fira Sans', sans-serif;
+    font-weight:600;
+    font-size:11.5px;
+    padding:4px 10px;
+    white-space:nowrap;
+    flex-shrink:0;
+    border-radius:999px;
+  }
+  .badge svg{ flex-shrink:0; }
+  .badge.done{ color:var(--success); background:var(--success-bg); }
+  .badge.pending{ color:var(--accent); background:var(--accent-bg); }
+  .badge.overdue{ color:var(--danger); background:var(--danger-bg); }
+  .badge.flagged{ color:var(--danger); background:var(--danger-bg); }
+
+  .check-btn{
+    margin-top:10px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--primary);
+    color:var(--on-solid);
+    border:none;
+    padding:8px 16px;
+    font-family:'Fira Sans', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    border-radius:var(--radius-sm);
+    transition:transform 140ms var(--ease-out), opacity 150ms ease, background-color 150ms ease;
+  }
+  .check-btn:active{ transform:scale(0.97); }
+  .check-btn:disabled{ opacity:0.6; cursor:default; }
+  .check-btn.undo{ background:none; color:var(--ink-soft); border:1px solid var(--border); }
+  @media (hover:hover) and (pointer:fine){
+    .check-btn:hover{ opacity:0.92; }
+    .check-btn.undo:hover{ color:var(--ink); border-color:var(--border-strong); background:var(--surface-2); }
+  }
+
+  .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin:10px 0; }
+  .field-section-title{
+    grid-column: 1 / -1;
+    font-family:'Fira Sans', sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    color:var(--primary);
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid var(--border);
+  }
+  .field-section-title:first-child{ margin-top:0; padding-top:0; border-top:none; }
+  .field-label{ font-size:12px; color:var(--ink-soft); font-weight:500; display:flex; flex-direction:column; gap:4px; }
+  .field-label-checkbox{
+    flex-direction:row !important;
+    align-items:center;
+    gap:8px !important;
+    font-size:13px;
+    color:var(--ink);
+  }
+  .field-checkbox{ width:16px; height:16px; accent-color:var(--primary); flex-shrink:0; }
+  .toggle-group{ display:inline-flex; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; flex-shrink:0; }
+  .toggle-btn{
+    font-family:'Fira Sans', sans-serif;
+    font-size:12px;
+    font-weight:600;
+    padding:5px 12px;
+    background:var(--surface);
+    border:none;
+    border-right:1px solid var(--border);
+    cursor:pointer;
+    color:var(--ink-soft);
+    transition:background-color 150ms ease, color 150ms ease, transform 120ms var(--ease-out);
+  }
+  .toggle-btn:last-child{ border-right:none; }
+  .toggle-btn:active{ transform:scale(0.95); }
+  @media (hover:hover) and (pointer:fine){
+    .toggle-btn:hover{ background:var(--surface-2); }
+  }
+  .toggle-btn.opt-yes{ background:var(--success); color:var(--on-solid); }
+  .toggle-btn.opt-no{ background:var(--danger); color:var(--on-solid); }
+  .toggle-btn.opt-other{ background:var(--accent); color:var(--on-solid); }
+  .field-label .field-input, .field-label select{
+    font-family:'Fira Sans', sans-serif; font-size:13px; padding:7px 9px;
+    border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--surface); color:var(--ink);
+    transition:border-color 150ms ease;
+  }
+  .field-label .field-input:focus, .field-label select:focus{ border-color:var(--primary); outline:none; }
+  .note-input{
+    margin-top:8px;
+    width:100%;
+    font-family:'Fira Sans', sans-serif;
+    font-size:13px;
+    padding:7px 9px;
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    background:var(--surface);
+    color:var(--ink);
+    transition:border-color 150ms ease;
+  }
+  .note-input:focus{ border-color:var(--primary); outline:none; }
+
+  .history-group{ margin-bottom:16px; }
+  .history-group-title{
+    font-family:'Fira Sans', sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    color:var(--ink-faint);
+    padding:6px 0;
+    border-bottom:1px solid var(--border);
+    margin-bottom:2px;
+  }
+  .history-list{ list-style:none; padding:0; margin:0; }
+  .history-list li{
+    display:flex; justify-content:flex-end; align-items:center; gap:8px;
+    padding:9px 8px; border-bottom:1px solid var(--border); font-size:13px;
+    border-radius:var(--radius-sm);
+    transition:background-color 150ms ease;
+  }
+  .history-list li.flagged-row{ background:var(--danger-bg); }
+  @media (hover:hover) and (pointer:fine){
+    .history-list li:hover{ background:var(--surface-2); }
+    .history-list li.flagged-row:hover{ background:var(--danger-bg); }
+  }
+  .history-list .h-date{ font-family:'Fira Code', monospace; color:var(--ink-faint); width:110px; flex-shrink:0; }
+  .history-list .h-name{ flex:1; text-align:left; }
+
+  .empty-note{ color:var(--ink-faint); font-size:13px; padding:8px 0 20px; }
+
+  select, input[type=text]{
+    font-family:'Fira Sans', sans-serif; font-size:13px; padding:7px 10px;
+    border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--surface); color:var(--ink);
+    transition:border-color 150ms ease;
+  }
+  select:focus, input[type=text]:focus{ border-color:var(--primary); outline:none; }
+  .toolbar{ display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+
+  /* ---- Toasts (replaces blocking alert()) ---- */
+  .toast-stack{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; gap:8px; z-index:100;
+    width:min(92vw, 420px); pointer-events:none;
+  }
+  .toast{
+    pointer-events:auto;
+    background:var(--ink); color:var(--surface);
+    border-radius:var(--radius-md); padding:11px 16px; font-size:13px; line-height:1.4;
+    box-shadow:var(--shadow-2);
+    opacity:0; transform:translateY(100%) scale(0.98);
+    transition:opacity 200ms var(--ease-out), transform 200ms var(--ease-out);
+  }
+  .toast.show{ opacity:1; transform:translateY(0) scale(1); }
+  .toast.error{ background:var(--danger); color:var(--on-solid); }
+
+  /* ---- Small screens: rail becomes a horizontal scrolling strip ---- */
+  @media (max-width: 720px){
+    .shell{ flex-direction:column; }
+    .rail{
+      width:100%; height:auto; position:sticky; top:62px;
+      display:flex; overflow-x:auto; padding:8px; border-right:none;
+      border-bottom:1px solid var(--border); white-space:nowrap;
+    }
+    .rail .rail-label{ display:none; }
+    .rail button{
+      width:auto; margin:0 2px; display:inline-flex; align-items:center; padding:8px 14px;
+      flex-shrink:0; min-height:44px;
+    }
+    main{ padding:18px 16px 48px; }
+    .topbar{ padding:12px 16px; flex-wrap:wrap; gap:8px; }
+    .ring-row{ gap:10px; }
+    .ring-card{ min-width:130px; }
+    .field-grid{ grid-template-columns:1fr; }
+    .toggle-btn{ padding:10px 14px; min-height:44px; }
+    .check-btn{ min-height:44px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .ring-card, .check-btn, .toggle-btn, .task-card{ transition-property:opacity, background-color, color, border-color, box-shadow; }
+    .toast{ transition-property:opacity; }
+    .check-btn:active, .toggle-btn:active{ transform:none; }
+    .toast{ transform:none; }
+    .toast.show{ transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <h1>FPO Safety &amp; Compliance Log</h1>
+    <div class="sub">Emergency equipment, medication, and supply checklists</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <div class="date stamp" id="todayLabel"></div>
+    <button class="check-btn undo" id="exportBtn" style="margin:0;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></svg>
+      Export CSV
+    </button>
+    <label class="check-btn undo" style="margin:0; cursor:pointer;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M4 3h16"/></svg>
+      Import CSV
+      <input type="file" id="importInput" accept=".csv" style="display:none;">
+    </label>
+  </div>
+</header>
+
+<div class="shell">
+  <div class="rail" role="tablist" aria-label="Sections">
+    <div class="rail-label">Dashboard</div>
+    <button data-tab="overview" class="active" role="tab" aria-selected="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span>Overview</span>
+    </button>
+    <div class="rail-label">Checklists</div>
+    <button data-tab="daily" role="tab" aria-selected="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <span>Daily</span>
+    </button>
+    <button data-tab="weekly" role="tab" aria-selected="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2"/></svg>
+      <span>Weekly</span>
+    </button>
+    <button data-tab="monthly" role="tab" aria-selected="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+      <span>Monthly</span>
+    </button>
+    <div class="rail-label">Records</div>
+    <button data-tab="history" role="tab" aria-selected="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 3"/></svg>
+      <span>History</span>
+    </button>
+  </div>
+
+  <main id="main"></main>
+</div>
+
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+<script>
+/* ---------------- Toasts (non-blocking, replaces alert()) ---------------- */
+function toast(message, type){
+  const stack = document.getElementById("toastStack");
+  const el = document.createElement("div");
+  el.className = "toast" + (type==="error" ? " error" : "");
+  el.textContent = message;
+  stack.appendChild(el);
+  requestAnimationFrame(()=> requestAnimationFrame(()=> el.classList.add("show")));
+  setTimeout(()=>{
+    el.classList.remove("show");
+    el.addEventListener("transitionend", ()=> el.remove(), { once:true });
+  }, 4000);
+}
+
+/* ---------------- Data model ---------------- */
+/* ---------------- Data model ---------------- */
+const LOCATIONS = ["Location 1", "Location 2", "Location 3"];
+
+const TASKS = [
+  { id:"lock",     freq:"daily",   name:"Emergency Equipment & Lock Checklist",              perLoc:true },
+  { id:"fridge", freq:"daily", name:"Refrigerator Temp Monitoring Log", perLoc:true },
+  { id:"glucometer", freq:"daily", name:"Glucometer Control Log",                              perLoc:true },
+
+  { id:"eyewash",  freq:"weekly",  name:"Plumbed Eye Wash Station Checklist",                  perLoc:true },
+
+  { id:"cartTray", freq:"monthly", name:"Emergency Equipment Cart Medication Tray (Banyan)",   perLoc:true },
+  { id:"aed",      freq:"monthly", name:"AED Maintenance Inspection",                          perLoc:true },
+  { id:"medKit",   freq:"monthly", name:"Emergency Medication Kit",                            perLoc:true },
+  { id:"supplyAudit", freq:"monthly", name:"Medical/Surgical Supply Maintenance Audit",         perLoc:true },
+  { id:"istat",    freq:"monthly", name:"i-STAT Controls (Receipt & Monthly Check)",            perLoc:false },
+];
+
+/* ---------------- Field schemas for data-bearing tasks ---------------- */
+// Each schema field: {key, label, type: 'number'|'text'|'yesno', flag: fn(values) => true if this reading needs attention}
+// Helper: build a row of item checkboxes with auto-generated keys, prefixed "item_" so
+// they can be summarized/flagged generically.
+function itemFields(prefix, names){
+  return names.map((n,i)=>({ key:`item_${prefix}${i}`, label:n, type:"yesno" }));
+}
+function sectionHeader(label){ return { type:"header", label }; }
+
+const FIELD_SCHEMAS = {
+  lock: [
+    { key:"date", label:"Date", type:"date" },
+    { key:"time", label:"Time", type:"time" },
+    { key:"arrestCartLock", label:"Arrest Cart Lock #", type:"text" },
+    { key:"otherLock1", label:"Other Lock # (if appl.)", type:"text" },
+    { key:"otherLock2", label:"Other Lock # (if appl.)", type:"text" },
+    { key:"resBag", label:"Manual res. bag w/ appropriate size masks", type:"checkbox" },
+    { key:"o2Tank", label:"Full O2 tank reg.", type:"checkbox" },
+    { key:"suction", label:"Portable suction", type:"checkbox" },
+    { key:"aed", label:"AED present & status window checked", type:"checkbox" },
+    { key:"comments", label:"Comments", type:"text" },
+    { key:"rnSignature", label:"RN signature", type:"text" },
+  ],
+  fridge: [
+    { key:"staffInitials", label:"Staff initials", type:"text" },
+    { key:"exactTime", label:"Exact time", type:"time" },
+    { key:"minTemp", label:"Min temp in unit since previous reading (°C)", type:"number" },
+    { key:"maxTemp", label:"Max temp in unit since previous reading (°C)", type:"number" },
+    { key:"currentTemp", label:"Current temperature", type:"select", options:["8°C","7°C","6°C","5°C","4°C","3°C","2°C","Above 8°C","Below 2°C"] },
+    { key:"actionNotes", label:"Out-of-range temp — action taken (if applicable)", type:"text" },
+    { key:"roomTemp", label:"Room temperature (°C)", type:"number" },
+  ],
+  glucometer: [
+    { key:"highControl", label:"High control result", type:"number" },
+    { key:"lowControl", label:"Low control result", type:"number" },
+    { key:"inRange", label:"Results in range?", type:"yesno" },
+    { key:"repeatHigh", label:"Repeat high (if applicable)", type:"text" },
+    { key:"repeatLow", label:"Repeat low (if applicable)", type:"text" },
+    { key:"nameSignature", label:"Name / signature", type:"text" },
+  ],
+
+  eyewash: [
+    { key:"date", label:"Date", type:"date" },
+    { key:"checkedBy", label:"Checked by (print name)", type:"text" },
+    { key:"item_accessible", label:"Eye wash station accessible", type:"yesno" },
+    { key:"item_waterTemp", label:"Water temperature tepid/lukewarm", type:"yesno" },
+    { key:"item_waterPressure", label:"Water pressure adequate", type:"yesno" },
+    { key:"item_dustCaps", label:"Dust caps in place", type:"yesno" },
+    { key:"item_signage", label:"Eye wash station with proper signage", type:"yesno" },
+    { key:"notes", label:"Notes (required for any \"No\")", type:"text" },
+  ],
+
+  cartTray: [
+    { key:"date", label:"Date", type:"date" },
+    { key:"itemsPresent", label:"All medication tray items present & in date?", type:"yesno" },
+    { key:"notes", label:"Notes / items replaced", type:"text" },
+    { key:"initials", label:"Staff initials", type:"text" },
+  ],
+
+  aed: [
+    { key:"date", label:"Date of inspection", type:"date" },
+    { key:"item_unitClean", label:"Unit is clean, undamaged, free of excessive wear", type:"yesno" },
+    { key:"item_noCracks", label:"Absence of cracks or loose parts in housing", type:"yesno" },
+    { key:"item_electrodesConnected", label:"Electrodes connected & properly sealed", type:"yesno" },
+    { key:"item_electrodesExp", label:"Electrodes within expiration dates", type:"yesno" },
+    { key:"item_cablesFree", label:"Cables free of cracks/cuts/exposed wires", type:"yesno" },
+    { key:"item_greenCheck", label:"Green check indicates ready for use", type:"yesno" },
+    { key:"item_suppliesAvailable", label:"Supplies available for use (if applicable)", type:"yesno" },
+    { key:"signature", label:"Signature", type:"text" },
+    { key:"printName", label:"Print name", type:"text" },
+  ],
+
+  medKit: (function(){
+    const groups = [
+      ["triage","Triage & Assessment",["Gloves, Nitrile (3 pair)","Protective Eyewear","Microshield® CPR mouth barrier","Stethoscope","Sphygmomanometer","Disposable thermometer","Headlamp","N95 Respirator"]],
+      ["ivfluids","Intravenous Fluids & Drug Delivery",["VanishPoint® Syringes","Sodium Chloride 0.9% 500mL bag (2)","IV administration tubing","IV Catheters","Tape, hypoallergenic paper","Tourniquet, latex free"]],
+      ["trauma","Trauma & Miscellaneous",["Gauze pads","Gauze bandage","Compression bandage","Chlorascrub™ swabstick","Alcohol wipes","Gauze sponges","Mayo-Hegar needle holder, 5 1/4\"","Curved Mayo scissors, 6 3/4\"","Curved Kelly forceps, 5 1/2\" (2)","Dressing thumb forcep","Scalpel","Prolene and Vicryl sutures","Cold pack","First aid handbook","Eye wash","EMS Shears","Emergency Thermal Blanket"]],
+      ["airway","Airway Management Equipment",["Oropharyngeal airways","Supraglottic Airways","Endotracheal tubes","CO2 detector","Laryngoscopes","Hand-held suction unit w/ Yankauer tip","Magill forceps","Ambu® SPUR resuscitator w/ adult & child masks"]],
+      ["anaphylaxis","Anaphylaxis, Allergy & Asthma Medications",["Albuterol inhaler 90mcg","Diphenhydramine 25mg capsule (2)","Diphenhydramine 50mg/mL, 1mL vial (2)","Epinephrine auto-injector (Pedi) 0.15mg","Epinephrine auto-injector (Adult) 0.3mg","Epinephrine 1:1,000, 1mL vial (2)","Solu-Medrol 125mg, 2mL Act-O-Vial®"]],
+      ["miscmeds","Miscellaneous Medications",["Ammonia inhalant (3)","Dextrose 25% (Infant) prefilled syringe","Dextrose 50% prefilled syringe","Flumazenil 0.1mg/mL vial","Naloxone 0.4mg/mL vial (2)","Ondansetron 2mg/mL vial (2)","Oral glucose gel 15g tube"]],
+      ["cardiac","Cardiac Medications",["Adenosine 3mg/mL vial (5)","Amiodarone 50mg/mL vial (2)","Aspirin tablets 325mg (4)","Atropine Sulfate prefilled syringe (2)","Dopamine 40mg/mL vial (1)","Epinephrine 1:10,000 prefilled (2)","Lidocaine 2% prefilled (2)","Magnesium sulfate prefilled syringe (1)","Nitroglycerin 0.4mg tablets","Verapamil 2.5mg/mL vial"]],
+    ];
+    let schema = [{ key:"date", label:"Date of inspection", type:"date" }];
+    groups.forEach(([slug,title,items])=>{
+      schema.push(sectionHeader(title));
+      schema = schema.concat(itemFields(slug, items));
+    });
+    schema.push({ key:"expiredNotes", label:"Details on any expired / missing items", type:"text" });
+    schema.push({ key:"signature", label:"Signature", type:"text" });
+    schema.push({ key:"printName", label:"Print name", type:"text" });
+    return schema;
+  })(),
+
+  supplyAudit: [
+    { key:"date", label:"Date", type:"date" },
+    { key:"departmentUnit", label:"Department/Unit", type:"text" },
+    { key:"floorRoom", label:"Floor/Room #", type:"text" },
+    { key:"inspectorTitle", label:"Inspector/Title", type:"text" },
+    sectionHeader("I. Environment"),
+    { key:"envClean", label:"Room clean — floors/walls/ceiling/bins dusted", type:"select", options:["Yes","No","N/A"] },
+    { key:"envSprinkler", label:"Supplies stored ≥18\" below sprinkler heads", type:"select", options:["Yes","No","N/A"] },
+    { key:"envNoStockZone", label:"18\" no-stock zone clearly identified", type:"select", options:["Yes","No","N/A"] },
+    { key:"envDoors", label:"Doors closed/locked, close automatically", type:"select", options:["Yes","No","N/A"] },
+    { key:"envDoorways", label:"Doorways clear of equipment/supplies", type:"select", options:["Yes","No","N/A"] },
+    { key:"envDirtyFree", label:"Room free of dirty supplies/equipment", type:"select", options:["Yes","No","N/A"] },
+    { key:"envOffFloor", label:"All supplies/packages off the floor", type:"select", options:["Yes","No","N/A"] },
+    sectionHeader("II. Supplies Inventory"),
+    { key:"invBins", label:"Supplies separated in proper bins/locations", type:"select", options:["Yes","No","N/A"] },
+    { key:"invLabeled", label:"Bins/shelf locations properly labeled", type:"select", options:["Yes","No","N/A"] },
+    { key:"invExpIdentified", label:"Products with exp. dates clearly identified", type:"select", options:["Yes","No","N/A"] },
+    { key:"invRotation", label:"Product rotation followed (nearest front)", type:"select", options:["Yes","No","N/A"] },
+    { key:"invBinSpace", label:"Bin/shelf space adequate for par level", type:"select", options:["Yes","No","N/A"] },
+    { key:"invExpVisible", label:"Exp. dates visible from staff line of sight", type:"select", options:["Yes","No","N/A"] },
+    { key:"invOutOfStock", label:"Any supplies out of stock?", type:"select", options:["Yes","No","N/A"] },
+    { key:"invAllCurrent", label:"All products with exp. date current", type:"select", options:["Yes","No","N/A"] },
+    sectionHeader("III. Oxygen"),
+    { key:"o2SeparateStorage", label:"Separate storage for full & empty cylinders", type:"select", options:["Yes","No","N/A"] },
+    { key:"o2RacksMarked", label:"Storage racks/cabinets marked full/empty", type:"select", options:["Yes","No","N/A"] },
+    { key:"o2Secured", label:"All oxygen cylinders properly secured", type:"select", options:["Yes","No","N/A"] },
+    { key:"expiredProducts", label:"Expired products (item, catalog #, exp date, qty)", type:"text" },
+    { key:"inspectionStatus", label:"Inspection status", type:"select", options:["Pass","Fail"] },
+    { key:"correctiveAction", label:"Corrective action needed?", type:"yesno" },
+    { key:"correctiveDescribe", label:"Describe corrective action", type:"text" },
+    { key:"reviewedBy", label:"Reviewed by", type:"text" },
+  ],
+
+  istat: [
+    { key:"date", label:"Date", type:"date" },
+    { key:"testedBy", label:"Tested by", type:"text" },
+    { key:"clew", label:"CLEW", type:"text" },
+    { key:"cartridgeLot", label:"Cartridge lot #", type:"text" },
+    { key:"controlLevel", label:"Control level", type:"text" },
+    { key:"controlLot", label:"Control lot #", type:"text" },
+    { key:"range", label:"Acceptable range", type:"text" },
+    { key:"results", label:"Results", type:"text" },
+    { key:"inRange", label:"Results in range?", type:"yesno" },
+  ],
+};
+
+// Item-checklist fields (either 'yesno' or 'checkbox', keyed "item_...") shared by helper below.
+function itemChecklistFields(taskId){
+  const schema = FIELD_SCHEMAS[taskId] || [];
+  return schema.filter(f=> (f.type==="yesno" || f.type==="checkbox") && f.key.startsWith("item_"));
+}
+function itemFlagMessage(taskId, fields){
+  const itemFieldsList = itemChecklistFields(taskId);
+  if (!itemFieldsList.length) return null;
+  const missing = itemFieldsList.filter(f=> fields[f.key] !== "yes").map(f=>f.label);
+  return missing.length ? `Missing/not confirmed (${missing.length}): ${missing.join(", ")}` : null;
+}
+
+// Returns a short flag message if the submitted field values need attention, else null.
+function evaluateFlag(taskId, fields){
+  if (!fields) return null;
+  if (taskId==="lock"){
+    const missing = [];
+    if (fields.resBag==="no") missing.push("res. bag/masks");
+    if (fields.o2Tank==="no") missing.push("O2 tank reg.");
+    if (fields.suction==="no") missing.push("portable suction");
+    if (fields.aed==="no") missing.push("AED");
+    return missing.length ? "Missing/not confirmed: " + missing.join(", ") : null;
+  }
+  if (taskId==="fridge"){
+    const ct = fields.currentTemp || "";
+    if (ct.startsWith("Above") || ct.startsWith("Below")) return `Current temp reading (${ct}) is out of the 2–8°C range`;
+    return null;
+  }
+  if (taskId==="glucometer"){
+    if (fields.inRange === "no") return "Control result(s) out of range";
+    return null;
+  }
+  if (taskId==="eyewash"){
+    return itemFlagMessage("eyewash", fields);
+  }
+  if (taskId==="cartTray"){
+    if (fields.itemsPresent === "no") return "Tray item(s) missing or expired — see notes";
+    return null;
+  }
+  if (taskId==="aed"){
+    return itemFlagMessage("aed", fields);
+  }
+  if (taskId==="medKit"){
+    return itemFlagMessage("medKit", fields);
+  }
+  if (taskId==="supplyAudit"){
+    if (fields.inspectionStatus === "Fail") return "Inspection status: Fail — corrective action required";
+    return null;
+  }
+  if (taskId==="istat"){
+    if (fields.inRange === "no") return "i-STAT result out of range";
+    return null;
+  }
+  return null;
+}
+
+/* ---------------- Date helpers ---------------- */
+function fmtDate(d){ return d.toISOString().slice(0,10); }
+function today(){ return new Date(); }
+function addDays(d,n){ const c=new Date(d); c.setDate(c.getDate()+n); return c; }
+function isoWeekKey(d){
+  const c = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = (c.getUTCDay()+6)%7;
+  c.setUTCDate(c.getUTCDate()-dayNum+3);
+  const firstThursday = new Date(Date.UTC(c.getUTCFullYear(),0,4));
+  const week = 1 + Math.round(((c-firstThursday)/86400000 - 3 + ((firstThursday.getUTCDay()+6)%7))/7);
+  return c.getUTCFullYear()+"-W"+String(week).padStart(2,"0");
+}
+function monthKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+function weekRangeLabel(d){
+  const dayNum = (d.getDay()+6)%7;
+  const mon = addDays(d,-dayNum);
+  const sun = addDays(mon,6);
+  const opts = {month:"short", day:"numeric"};
+  return mon.toLocaleDateString(undefined,opts) + " – " + sun.toLocaleDateString(undefined,opts);
+}
+function monthLabel(d){ return d.toLocaleDateString(undefined,{month:"long", year:"numeric"}); }
+
+/* ---------------- Location selection (per perLoc task) ---------------- */
+const locationSelection = {};
+TASKS.filter(t=>t.perLoc).forEach(t=> locationSelection[t.id] = (t.options || LOCATIONS)[0]);
+
+/* ---------------- Instance expansion ---------------- */
+function instancesFor(task, periodKey){
+  if (task.perLoc){
+    const loc = locationSelection[task.id];
+    return [{ task, loc, key: "cmp:" + task.id + "|" + loc + "|" + periodKey }];
+  }
+  return [{ task, loc:null, key: "cmp:" + task.id + "|all|" + periodKey }];
+}
+// Always expands to every location/unit, regardless of UI selection — used for compliance math, alerts, history.
+function allInstancesFor(task, periodKey){
+  const locs = task.perLoc ? (task.options || LOCATIONS) : [null];
+  return locs.map(loc => ({
+    task, loc,
+    key: "cmp:" + task.id + "|" + (loc||"all") + "|" + periodKey
+  }));
+}
+
+/* ---------------- Data layer: talks directly to the Google Sheet via Apps Script ---------------- */
+// google.script.run is callback-based; this wraps it so the rest of the app can use async/await.
+function gsRun(funcName, ...args){
+  return new Promise((resolve, reject)=>{
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)
+      [funcName](...args);
+  });
+}
+
+let cache = {};       // key -> {done, doneAt, note, fields, flag} | null
+let cacheLoaded = false;
+
+// Pulls every record from the Sheet in one call and refreshes the whole local cache.
+// Cheap enough to call whenever a tab renders, so everyone always sees the latest data.
+async function refreshCache(){
+  const raw = await gsRun("getAllRecords"); // { key: jsonStringOrEmpty }
+  const next = {};
+  Object.keys(raw).forEach(k=>{
+    try{ next[k] = raw[k] ? JSON.parse(raw[k]) : null; }
+    catch(e){ next[k] = null; }
+  });
+  cache = next;
+  cacheLoaded = true;
+}
+
+// Kept for compatibility with the rendering code below, which calls loadKeys(keys) before
+// reading from cache. Refreshing on every call (rather than only once) means every tab
+// switch picks up whatever teammates have logged elsewhere, keeping the view live.
+// After a local save/undo, cache is already correct — skipRefresh avoids re-pulling the
+// whole sheet just to redraw the same data we just wrote.
+let skipNextRefresh = false;
+async function loadKeys(keys){
+  if (skipNextRefresh){ skipNextRefresh = false; return; }
+  await refreshCache();
+}
+
+function recordToRow(key, val){
+  const body = key.slice(4);
+  const [taskId, loc, periodKey] = body.split("|");
+  return {
+    task_id: taskId, location: loc, period_key: periodKey,
+    done: val ? "yes" : "no",
+    logged_at: val ? val.doneAt : "",
+    note: val ? (val.note || "") : "",
+    flag: val ? (val.flag || "") : "",
+    fields_json: val && val.fields ? JSON.stringify(val.fields) : ""
+  };
+}
+
+async function setDone(key, done, note, fields){
+  const flag = done ? evaluateFlag(key.split(":")[1].split("|")[0], fields) : null;
+  const val = done ? { done:true, doneAt: new Date().toISOString(), note: note||"", fields: fields||null, flag } : null;
+  cache[key] = val;
+  try{
+    if (val) await gsRun("saveRecord", key, JSON.stringify(val));
+    else await gsRun("deleteRecord", key);
+  }catch(e){
+    console.error("save failed", e);
+    toast("Couldn't save this entry. Check your connection and try again.", "error");
+  }
+}
+
+/* ---------------- Rendering ---------------- */
+const main = document.getElementById("main");
+let activeTab = "overview";
+
+document.getElementById("todayLabel").textContent =
+  today().toLocaleDateString(undefined,{weekday:"long", year:"numeric", month:"long", day:"numeric"});
+
+document.querySelectorAll(".rail button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".rail button").forEach(b=>{ b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
+    btn.classList.add("active");
+    btn.setAttribute("aria-selected","true");
+    activeTab = btn.dataset.tab;
+    render();
+  });
+});
+
+const BADGE_ICONS = {
+  done: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>`,
+  pending: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
+  overdue: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>`,
+  flagged: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22V4"/><path d="M4 4h13l-2 4.5L17 13H4"/></svg>`,
+};
+function badge(status){
+  const map = { done:"Complete", pending:"Pending", overdue:"Overdue", flagged:"Flagged" };
+  return `<span class="badge ${status}">${BADGE_ICONS[status]}${map[status]}</span>`;
+}
+
+function toggleGroupHTML(fieldKey, options, lowercaseValues){
+  return `<div class="toggle-group" data-field="${fieldKey}" role="radiogroup">` +
+    options.map(o=>{
+      const val = lowercaseValues ? o.toLowerCase() : o;
+      return `<button type="button" class="toggle-btn" role="radio" aria-checked="false" data-value="${val}">${o}</button>`;
+    }).join("") +
+  `</div>`;
+}
+
+function fieldInputHTML(f){
+  if (f.type==="header") return "";
+  if (f.type==="yesno"){
+    return toggleGroupHTML(f.key, ["Yes","No"], true);
+  }
+  if (f.type==="select"){
+    if (f.options.length <= 3) return toggleGroupHTML(f.key, f.options, false);
+    return `<select class="field-input" data-field="${f.key}">
+      <option value="">— select —</option>
+      ${f.options.map(o=>`<option value="${o}">${o}</option>`).join("")}
+    </select>`;
+  }
+  if (f.type==="checkbox"){
+    return `<input class="field-input field-checkbox" data-field="${f.key}" type="checkbox" />`;
+  }
+  if (f.type==="date"){
+    return `<input class="field-input" data-field="${f.key}" type="date" value="${fmtDate(today())}" />`;
+  }
+  if (f.type==="time"){
+    const now = today();
+    const hh = String(now.getHours()).padStart(2,"0");
+    const mm = String(now.getMinutes()).padStart(2,"0");
+    return `<input class="field-input" data-field="${f.key}" type="time" value="${hh}:${mm}" />`;
+  }
+  const type = f.type==="number" ? "number" : "text";
+  return `<input class="field-input" data-field="${f.key}" type="${type}" ${f.type==="number"?'step="0.1"':""} />`;
+}
+
+// Renders each field as a row for entry, grouping item checklists under their section headers.
+function fieldRowsHTML(schema){
+  return schema.map(f=>{
+    if (f.type==="header") return `<div class="field-section-title">${f.label}</div>`;
+    const isToggleRow = f.type==="checkbox" || f.type==="yesno" || (f.type==="select" && f.options.length<=3);
+    if (isToggleRow)
+      return `<label class="field-label field-label-checkbox">${fieldInputHTML(f)} <span>${f.label}</span></label>`;
+    return `<label class="field-label">${f.label}${fieldInputHTML(f)}</label>`;
+  }).join("");
+}
+
+function fieldSummaryHTML(schema, taskId, fields){
+  if (!schema || !fields) return "";
+  const itemFieldsList = itemChecklistFields(taskId);
+  const itemKeys = new Set(itemFieldsList.map(f=>f.key));
+  const otherFields = schema.filter(f=> f.type!=="header" && !itemKeys.has(f.key));
+
+  let html = "";
+  if (itemFieldsList.length){
+    const checkedCount = itemFieldsList.filter(f=> fields[f.key]==="yes").length;
+    const missing = itemFieldsList.filter(f=> fields[f.key]!=="yes").map(f=>f.label);
+    html += `<div class="task-meta" style="margin-top:8px;">${checkedCount} of ${itemFieldsList.length} items present &amp; in date</div>`;
+    if (missing.length) html += `<div class="task-meta" style="color:var(--danger); margin-top:4px;">Missing/expired: ${missing.map(escapeHtml).join(", ")}</div>`;
+  }
+  if (otherFields.length){
+    html += `<table class="summary-ledger">` +
+      otherFields.map(f=>{
+        let v = fields[f.key];
+        if (f.type==="checkbox") v = v==="yes" ? "Yes" : "No";
+        return `<tr><td>${f.label}</td><td>${escapeHtml(String(v ?? "—"))}</td></tr>`;
+      }).join("") +
+    `</table>`;
+  }
+  return html;
+}
+
+function taskCardHTML(inst, status, periodLabel, opts={}){
+  const rec = cache[inst.key];
+  const schema = FIELD_SCHEMAS[inst.task.id];
+  const flagged = rec && rec.flag;
+  const cls = flagged ? "overdue" : (status==="done" ? "done" : (status==="overdue" ? "overdue" : ""));
+
+  let body = "";
+  if (status==="done"){
+    body = `
+      ${schema ? fieldSummaryHTML(schema, inst.task.id, rec.fields) : ""}
+      ${rec && rec.note ? `<div class="task-meta" style="margin-top:6px;">Note: ${escapeHtml(rec.note)}</div>` : ""}
+      ${rec && rec.flag ? `<div class="task-meta" style="margin-top:6px; color:var(--danger); display:flex; align-items:flex-start; gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0; margin-top:1px;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>${escapeHtml(rec.flag)}</div>` : ""}
+      ${rec && rec.doneAt ? `<div class="task-meta stamp">Logged ${new Date(rec.doneAt).toLocaleString()}</div>` : ""}
+      <div><button class="check-btn undo" data-action="undo">Undo</button></div>
+    `;
+  } else if (schema){
+    body = `
+      <div class="field-grid">
+        ${fieldRowsHTML(schema)}
+      </div>
+      <input type="text" class="note-input" data-field="__note" placeholder="Additional note (optional)" />
+      <div><button class="check-btn" data-action="complete-fields">Save entry</button></div>
+    `;
+  } else {
+    body = `
+      <input type="text" class="note-input" placeholder="Optional note (e.g. corrective action, lock #, initials)" />
+      <div><button class="check-btn" data-action="complete">Mark complete</button></div>
+    `;
+  }
+
+  const locOptions = inst.task.options || LOCATIONS;
+  const locPicker = (inst.task.perLoc && !opts.hideLocPicker)
+    ? `<select class="loc-picker" data-taskid="${inst.task.id}" aria-label="Location for ${inst.task.name}">
+        ${locOptions.map(l=>`<option value="${l}" ${l===inst.loc?"selected":""}>${l}</option>`).join("")}
+      </select>`
+    : (inst.task.perLoc && opts.hideLocPicker ? `<div class="task-loc">${inst.loc}</div>` : "");
+
+  return `
+  <div class="task-card ${cls}" data-key="${inst.key}" data-taskid="${inst.task.id}">
+    <div class="task-row">
+      <div>
+        <div class="task-title">${inst.task.name}</div>
+        ${locPicker}
+        <div class="task-meta">${periodLabel}</div>
+      </div>
+      ${flagged ? badge("flagged") : badge(status)}
+    </div>
+    ${body}
+  </div>`;
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+// Shared location selector, one per tab (daily/weekly/monthly).
+let tabLocationFilter = { daily: LOCATIONS[0], weekly: LOCATIONS[0], monthly: LOCATIONS[0] };
+
+// perLoc tasks that use the real facility LOCATIONS (not custom option sets like fridge
+// units) follow their tab's single shared location dropdown instead of a per-card one.
+function instancesForTab(freq, task, periodKey){
+  if (task.perLoc && !task.options){
+    const loc = tabLocationFilter[freq];
+    return [{ task, loc, key: "cmp:" + task.id + "|" + loc + "|" + periodKey }];
+  }
+  return instancesFor(task, periodKey);
+}
+
+async function renderChecklistSection(freq, periodKey, periodLabel){
+  const tasks = TASKS.filter(t=>t.freq===freq);
+  let allInstances = [];
+  tasks.forEach(t=> allInstances = allInstances.concat(instancesForTab(freq, t, periodKey)));
+  await loadKeys(allInstances.map(i=>i.key));
+
+  const isPastDue = freq==="daily"; // only daily gets same-day overdue-at-eod styling via history; today's items are just pending
+  let html = "";
+  allInstances.forEach(inst=>{
+    const rec = cache[inst.key];
+    const status = rec && rec.done ? "done" : "pending";
+    // Hide the per-card location dropdown when the tab's shared selector already covers it.
+    const hideLocPicker = (inst.task.perLoc && !inst.task.options);
+    html += taskCardHTML(inst, status, periodLabel, { hideLocPicker });
+  });
+  return html || `<div class="empty-note">No tasks configured.</div>`;
+}
+
+let overviewLocFilter = "All";
+
+function instancesForOverview(task, periodKey){
+  // Only tasks that use the real facility LOCATIONS (not custom option sets like fridge units)
+  // get filtered by the dashboard's location dropdown.
+  if (task.perLoc && !task.options){
+    const locs = overviewLocFilter==="All" ? LOCATIONS : [overviewLocFilter];
+    return locs.map(loc=>({ task, loc, key:"cmp:"+task.id+"|"+loc+"|"+periodKey }));
+  }
+  return allInstancesFor(task, periodKey);
+}
+
+async function overdueDailyItems(){
+  // check yesterday's daily instances
+  const y = addDays(today(),-1);
+  const key = fmtDate(y);
+  const tasks = TASKS.filter(t=>t.freq==="daily");
+  let insts = [];
+  tasks.forEach(t=> insts = insts.concat(instancesForOverview(t,key)));
+  await loadKeys(insts.map(i=>i.key));
+  return insts.filter(i=> !(cache[i.key] && cache[i.key].done))
+              .map(i=> i.task.name + (i.loc?` — ${i.loc}`:"") );
+}
+
+async function computeCompliance(freq, periodKey){
+  const tasks = TASKS.filter(t=>t.freq===freq);
+  let insts = [];
+  tasks.forEach(t=> insts = insts.concat(instancesForOverview(t, periodKey)));
+  await loadKeys(insts.map(i=>i.key));
+  const doneCount = insts.filter(i=> cache[i.key] && cache[i.key].done).length;
+  return { done: doneCount, total: insts.length };
+}
+
+async function flaggedItemsToday(){
+  const dKey = fmtDate(today());
+  const wKey = isoWeekKey(today());
+  const mKey = monthKey(today());
+  let insts = [];
+  TASKS.forEach(t=>{
+    const pk = t.freq==="daily" ? dKey : t.freq==="weekly" ? wKey : mKey;
+    insts = insts.concat(instancesForOverview(t, pk));
+  });
+  await loadKeys(insts.map(i=>i.key));
+  return insts.filter(i=> cache[i.key] && cache[i.key].flag)
+              .map(i=> `${i.task.name}${i.loc?` — ${i.loc}`:""}: ${cache[i.key].flag}`);
+}
+
+async function computeLocationBreakdown(){
+  const dKey = fmtDate(today()), wKey = isoWeekKey(today()), mKey = monthKey(today());
+  const freqPeriod = { daily:dKey, weekly:wKey, monthly:mKey };
+  let allInsts = [];
+  LOCATIONS.forEach(loc=>{
+    Object.entries(freqPeriod).forEach(([freq,pk])=>{
+      TASKS.filter(t=>t.freq===freq && t.perLoc && !t.options).forEach(t=>{
+        allInsts.push({ loc, freq, key:"cmp:"+t.id+"|"+loc+"|"+pk });
+      });
+    });
+  });
+  await loadKeys(allInsts.map(i=>i.key));
+  const result = {};
+  LOCATIONS.forEach(loc=>{
+    result[loc] = {};
+    ["daily","weekly","monthly"].forEach(freq=>{
+      const insts = allInsts.filter(i=> i.loc===loc && i.freq===freq);
+      const done = insts.filter(i=> cache[i.key] && cache[i.key].done).length;
+      result[loc][freq] = { done, total: insts.length };
+    });
+  });
+  return result;
+}
+
+async function outstandingToday(){
+  const dKey = fmtDate(today());
+  let insts = [];
+  TASKS.filter(t=>t.freq==="daily").forEach(t=> insts = insts.concat(instancesForOverview(t, dKey)));
+  await loadKeys(insts.map(i=>i.key));
+  return insts.filter(i=> !(cache[i.key] && cache[i.key].done))
+              .map(i=> ({ name: i.task.name, loc: i.loc, freq:"daily" }));
+}
+
+async function renderOverview(){
+  const dKey = fmtDate(today());
+  const wKey = isoWeekKey(today());
+  const mKey = monthKey(today());
+
+  const [d, w, m, overdue, flagged, breakdown, outstanding] = await Promise.all([
+    computeCompliance("daily", dKey),
+    computeCompliance("weekly", wKey),
+    computeCompliance("monthly", mKey),
+    overdueDailyItems(),
+    flaggedItemsToday(),
+    computeLocationBreakdown(),
+    outstandingToday()
+  ]);
+
+  const pct = (x)=> x.total===0 ? 0 : Math.round(100*x.done/x.total);
+  const pctClass = (p)=> p===100 ? "ok" : (p<60 ? "danger" : "warn");
+
+  const alertTriangle = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`;
+  let overdueHTML = "";
+  if (flagged.length){
+    overdueHTML += `<div class="alert-box">
+      ${alertTriangle}
+      <div><strong>${flagged.length} reading${flagged.length>1?"s":""} need attention</strong>
+      <ul>${flagged.map(n=>`<li>${n}</li>`).join("")}</ul></div>
+    </div>`;
+  }
+  if (overdue.length){
+    overdueHTML += `<div class="alert-box">
+      ${alertTriangle}
+      <div><strong>${overdue.length} item${overdue.length>1?"s":""} from yesterday still unlogged</strong>
+      <ul>${overdue.map(n=>`<li>${n}</li>`).join("")}</ul></div>
+    </div>`;
+  }
+
+  const outstandingHTML = outstanding.length
+    ? `<ul class="outstanding-list">
+        ${outstanding.map(o=>`<li>
+          <span>${o.name}${o.loc?` — ${o.loc}`:""}</span>
+          <button class="check-btn undo" data-goto="daily">Log now</button>
+        </li>`).join("")}
+      </ul>`
+    : `<div class="empty-note">Nothing outstanding for today.</div>`;
+
+  const breakdownRows = LOCATIONS.map(loc=>{
+    const row = breakdown[loc];
+    const cell = (x)=>{
+      const p = pct(x);
+      return `<td><span class="loc-pct ${pctClass(p)}">${p}%</span><div class="loc-sub">${x.done}/${x.total}</div></td>`;
+    };
+    return `<tr><td class="loc-name">${loc}</td>${cell(row.daily)}${cell(row.weekly)}${cell(row.monthly)}</tr>`;
+  }).join("");
+
+  main.innerHTML = `
+    <div class="toolbar">
+      <label for="overviewLocSelect" style="font-size:13px; color:var(--ink-soft);">Location:</label>
+      <select id="overviewLocSelect">
+        <option value="All" ${overviewLocFilter==="All"?"selected":""}>All locations</option>
+        ${LOCATIONS.map(l=>`<option value="${l}" ${l===overviewLocFilter?"selected":""}>${l}</option>`).join("")}
+      </select>
+    </div>
+    ${overdueHTML}
+    <div class="ring-row">
+      <div class="ring-card ${pctClass(pct(d))}">
+        <div class="label">Today's daily log</div>
+        <div class="value">${pct(d)}%</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct(d)}%;"></div></div>
+        <div class="sub">${d.done} of ${d.total} logged</div>
+      </div>
+      <div class="ring-card ${pctClass(pct(w))}">
+        <div class="label">This week's log</div>
+        <div class="value">${pct(w)}%</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct(w)}%;"></div></div>
+        <div class="sub">${w.done} of ${w.total} logged</div>
+      </div>
+      <div class="ring-card ${pctClass(pct(m))}">
+        <div class="label">This month's log</div>
+        <div class="value">${pct(m)}%</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct(m)}%;"></div></div>
+        <div class="sub">${m.done} of ${m.total} logged</div>
+      </div>
+    </div>
+
+    <div class="section-head"><h2>Outstanding today</h2><span class="period">daily items not yet logged</span></div>
+    ${outstandingHTML}
+
+    <div class="section-head"><h2>Compliance by location</h2><span class="period">today / this week / this month</span></div>
+    <div class="loc-table-wrap">
+      <table class="loc-table">
+        <thead><tr><th></th><th>Daily</th><th>Weekly</th><th>Monthly</th></tr></thead>
+        <tbody>${breakdownRows}</tbody>
+      </table>
+    </div>
+
+    <div class="section-head" style="margin-top:24px;"><h2>Facility</h2><span class="period">${overviewLocFilter==="All" ? "3 practice locations" : overviewLocFilter}</span></div>
+    <div style="font-size:14px; color:var(--ink-soft); margin-bottom:20px;">
+      Tracking ${TASKS.length} checklist types across daily, weekly, and monthly cadences —
+      matches the ColumbiaDoctors FPO safety checklist set (lock checks, fridge logs, glucometer
+      controls, eye wash station, AED, emergency medication kits, supply audits, and i-STAT controls).
+    </div>
+  `;
+}
+
+async function renderPeriodTab(freq){
+  const periodKey = freq==="daily" ? fmtDate(today()) : freq==="weekly" ? isoWeekKey(today()) : monthKey(today());
+  const periodLabel = freq==="daily"
+    ? today().toLocaleDateString(undefined,{weekday:"short", month:"short", day:"numeric"})
+    : freq==="weekly" ? weekRangeLabel(today())
+    : monthLabel(today());
+
+  const hasSharedLocTasks = TASKS.some(t=> t.freq===freq && t.perLoc && !t.options);
+  const locToolbar = hasSharedLocTasks
+    ? `<div class="toolbar">
+        <label for="tabLocSelect" style="font-size:13px; color:var(--ink-soft);">Location:</label>
+        <select id="tabLocSelect" data-freq="${freq}">
+          ${LOCATIONS.map(l=>`<option value="${l}" ${l===tabLocationFilter[freq]?"selected":""}>${l}</option>`).join("")}
+        </select>
+        <span style="font-size:12px; color:var(--ink-soft);">applies to all location-based checklists below</span>
+      </div>`
+    : "";
+
+  main.innerHTML = `
+    <div class="section-head">
+      <h2>${freq[0].toUpperCase()+freq.slice(1)} checklist</h2>
+      <span class="period">${periodLabel}</span>
+    </div>
+    ${locToolbar}
+    <div id="taskList">Loading…</div>
+  `;
+  const html = await renderChecklistSection(freq, periodKey, periodLabel);
+  document.getElementById("taskList").innerHTML = html;
+}
+
+async function renderHistory(){
+  main.innerHTML = `
+    <div class="section-head"><h2>History</h2><span class="period">filter and browse below</span></div>
+    <div class="toolbar">
+      <select id="freqFilter" aria-label="Frequency">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+      <select id="taskFilter" aria-label="Checklist"><option value="All">All checklists</option></select>
+      <select id="histLocFilter" aria-label="Location"><option value="All">All locations</option></select>
+      <select id="statusFilter" aria-label="Status">
+        <option value="All">All statuses</option>
+        <option value="done">Logged</option>
+        <option value="pending">Missing</option>
+        <option value="flagged">Flagged</option>
+      </select>
+    </div>
+    <div id="histSummary" class="task-meta" style="margin-bottom:12px;"></div>
+    <div id="histGroups"><div class="empty-note">Loading…</div></div>
+  `;
+  ["freqFilter","taskFilter","histLocFilter","statusFilter"].forEach(id=>{
+    document.getElementById(id).addEventListener("change", ()=>{
+      if (id==="freqFilter") populateHistoryFilterOptions();
+      renderHistoryList();
+    });
+  });
+  populateHistoryFilterOptions();
+  renderHistoryList();
+}
+
+function populateHistoryFilterOptions(){
+  const freq = document.getElementById("freqFilter").value;
+  const tasks = TASKS.filter(t=>t.freq===freq);
+  const taskSel = document.getElementById("taskFilter");
+  taskSel.innerHTML = `<option value="All">All checklists</option>` +
+    tasks.map(t=>`<option value="${t.id}">${t.name}</option>`).join("");
+
+  const usesRealLocations = tasks.some(t=> t.perLoc && !t.options);
+  const locSel = document.getElementById("histLocFilter");
+  if (usesRealLocations){
+    locSel.style.display = "";
+    locSel.innerHTML = `<option value="All">All locations</option>` +
+      LOCATIONS.map(l=>`<option value="${l}">${l}</option>`).join("");
+  } else {
+    locSel.style.display = "none";
+  }
+}
+
+async function renderHistoryList(){
+  const freq = document.getElementById("freqFilter").value;
+  const taskFilter = document.getElementById("taskFilter").value;
+  const locFilter = document.getElementById("histLocFilter").value;
+  const statusFilter = document.getElementById("statusFilter").value;
+
+  let tasks = TASKS.filter(t=>t.freq===freq);
+  if (taskFilter !== "All") tasks = tasks.filter(t=>t.id===taskFilter);
+
+  let periods = [];
+  if (freq==="daily"){
+    for(let i=0;i<14;i++) periods.push({key:fmtDate(addDays(today(),-i)), label:addDays(today(),-i).toLocaleDateString(undefined,{weekday:"short", month:"short",day:"numeric"})});
+  } else if (freq==="weekly"){
+    for(let i=0;i<6;i++){ const d=addDays(today(),-7*i); periods.push({key:isoWeekKey(d), label:weekRangeLabel(d)}); }
+  } else {
+    for(let i=0;i<6;i++){ const d=new Date(today().getFullYear(), today().getMonth()-i, 1); periods.push({key:monthKey(d), label:monthLabel(d)}); }
+  }
+
+  let allInsts = [];
+  periods.forEach(p=> tasks.forEach(t=> allInsts = allInsts.concat(allInstancesFor(t,p.key).map(i=>({...i, periodLabel:p.label, periodKey:p.key})))));
+  await loadKeys(allInsts.map(i=>i.key));
+
+  if (locFilter !== "All") allInsts = allInsts.filter(i=> i.loc===locFilter || !i.loc);
+
+  let rowsAll = allInsts.map(i=>{
+    const rec = cache[i.key];
+    const status = rec && rec.done ? "done" : "pending";
+    const flagged = !!(rec && rec.flag);
+    return { ...i, rec, status, flagged };
+  });
+
+  if (statusFilter==="done") rowsAll = rowsAll.filter(r=>r.status==="done");
+  else if (statusFilter==="pending") rowsAll = rowsAll.filter(r=>r.status==="pending");
+  else if (statusFilter==="flagged") rowsAll = rowsAll.filter(r=>r.flagged);
+
+  const doneCount = rowsAll.filter(r=>r.status==="done").length;
+  const flaggedCount = rowsAll.filter(r=>r.flagged).length;
+  document.getElementById("histSummary").innerHTML =
+    `${rowsAll.length} record${rowsAll.length===1?"":"s"} match these filters — ${doneCount} logged, ${flaggedCount} flagged.`;
+
+  // Group by period, most recent first (periods array is already newest-first).
+  const groupsHTML = periods.map(p=>{
+    const rows = rowsAll.filter(r=>r.periodKey===p.key);
+    if (!rows.length) return "";
+    const rowsHTML = rows.map(r=>`
+      <li class="${r.flagged?'flagged-row':''}">
+        <span class="h-name">${r.task.name}${r.loc?` — ${r.loc}`:""}</span>
+        ${r.flagged ? badge("flagged") : ""}
+        ${badge(r.status)}
+      </li>`).join("");
+    return `
+      <div class="history-group">
+        <div class="history-group-title">${p.label}</div>
+        <ul class="history-list">${rowsHTML}</ul>
+      </div>`;
+  }).join("");
+
+  document.getElementById("histGroups").innerHTML = groupsHTML || `<div class="empty-note">No records match these filters.</div>`;
+}
+
+/* ---------------- Event delegation for check actions ---------------- */
+main.addEventListener("change", (e)=>{
+  if (e.target.id === "overviewLocSelect"){
+    overviewLocFilter = e.target.value;
+    render();
+    return;
+  }
+  if (e.target.id === "tabLocSelect"){
+    tabLocationFilter[e.target.dataset.freq] = e.target.value;
+    render();
+    return;
+  }
+  if (e.target.classList.contains("loc-picker")){
+    locationSelection[e.target.dataset.taskid] = e.target.value;
+    render();
+  }
+});
+
+main.addEventListener("click", async (e)=>{
+  if (e.target.dataset.goto){
+    const tab = e.target.dataset.goto;
+    activeTab = tab;
+    document.querySelectorAll(".rail button").forEach(b=>{
+      const active = b.dataset.tab===tab;
+      b.classList.toggle("active", active);
+      b.setAttribute("aria-selected", String(active));
+    });
+    render();
+    return;
+  }
+  if (e.target.classList.contains("toggle-btn")){
+    const group = e.target.closest(".toggle-group");
+    group.querySelectorAll(".toggle-btn").forEach(b=>{ b.classList.remove("active","opt-yes","opt-no","opt-other"); b.setAttribute("aria-checked","false"); });
+    e.target.classList.add("active");
+    e.target.setAttribute("aria-checked","true");
+    const v = e.target.dataset.value.toLowerCase();
+    if (v==="yes" || v==="pass") e.target.classList.add("opt-yes");
+    else if (v==="no" || v==="fail") e.target.classList.add("opt-no");
+    else e.target.classList.add("opt-other");
+    return;
+  }
+  const card = e.target.closest(".task-card");
+  if (!card) return;
+  const key = card.dataset.key;
+  const action = e.target.dataset.action;
+  if (action !== "complete" && action !== "complete-fields" && action !== "undo") return;
+  if (e.target.disabled) return; // already saving, ignore repeat taps
+  e.target.disabled = true;
+  try{
+    if (action === "complete"){
+      const noteEl = card.querySelector(".note-input");
+      await setDone(key, true, noteEl ? noteEl.value : "");
+    } else if (action === "complete-fields"){
+      const fields = {};
+      card.querySelectorAll(".field-input").forEach(el=>{
+        fields[el.dataset.field] = el.type==="checkbox" ? (el.checked ? "yes" : "no") : el.value;
+      });
+      card.querySelectorAll(".toggle-group").forEach(g=>{
+        const active = g.querySelector(".toggle-btn.active");
+        fields[g.dataset.field] = active ? active.dataset.value : "";
+      });
+      const noteEl = card.querySelector('[data-field="__note"]');
+      await setDone(key, true, noteEl ? noteEl.value : "", fields);
+    } else if (action === "undo"){
+      await setDone(key, false, "");
+    }
+  } finally {
+    skipNextRefresh = true;
+    render();
+  }
+});
+
+/* ---------------- CSV export / import ---------------- */
+function csvEscape(v){
+  v = String(v ?? "");
+  return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v;
+}
+function parseCsvLine(line){
+  const out = []; let cur=""; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(inQ){
+      if(c==='"' && line[i+1]==='"'){ cur+='"'; i++; }
+      else if(c==='"'){ inQ=false; }
+      else cur+=c;
+    } else {
+      if(c==='"') inQ=true;
+      else if(c===','){ out.push(cur); cur=""; }
+      else cur+=c;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+document.getElementById("exportBtn").addEventListener("click", async ()=>{
+  await refreshCache();
+  const keys = Object.keys(cache);
+
+  const rows = [["task_id","location","period_key","done","logged_at","note","flag","fields_json"]];
+  keys.forEach(k=>{
+    const rec = cache[k];
+    if (!rec) return; // only export logged items
+    const body = k.slice(4); // strip "cmp:"
+    const [taskId, loc, periodKey] = body.split("|");
+    rows.push([taskId, loc, periodKey, "yes", rec.doneAt || "", rec.note || "", rec.flag || "", rec.fields ? JSON.stringify(rec.fields) : ""]);
+  });
+
+  const csv = rows.map(r=>r.map(csvEscape).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "compliance-log-" + fmtDate(today()) + ".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("importInput").addEventListener("change", async (e)=>{
+  const file = e.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
+  if (!lines.length) return;
+  const header = parseCsvLine(lines[0]).map(h=>h.trim().toLowerCase());
+  const idx = (name)=> header.indexOf(name);
+  const iTask = idx("task_id"), iLoc = idx("location"), iPeriod = idx("period_key"),
+        iDone = idx("done"), iLogged = idx("logged_at"), iNote = idx("note");
+  if (iTask<0 || iLoc<0 || iPeriod<0 || iDone<0){
+    toast("CSV must have columns: task_id, location, period_key, done, logged_at, note", "error");
+    return;
+  }
+  const knownTasks = {};
+  TASKS.forEach(t=> knownTasks[t.id] = t);
+  let count = 0, skipped = 0;
+  for (let i=1;i<lines.length;i++){
+    const cols = parseCsvLine(lines[i]);
+    const taskId = cols[iTask], loc = cols[iLoc] || "all", periodKey = cols[iPeriod];
+    const done = /^y|^true|^1/i.test(cols[iDone] || "");
+    if (!taskId || !periodKey || !done) continue;
+    const task = knownTasks[taskId];
+    if (!task){ skipped++; continue; }
+    const validLoc = task.perLoc ? (task.options || LOCATIONS).includes(loc) : loc==="all";
+    if (!validLoc){ skipped++; continue; }
+    const key = "cmp:" + taskId + "|" + loc + "|" + periodKey;
+    const val = { done:true, doneAt: cols[iLogged] || new Date().toISOString(), note: cols[iNote] || "" };
+    cache[key] = val;
+    try{
+      await gsRun("saveRecord", key, JSON.stringify(val));
+      count++;
+    }catch(err){ console.error(err); }
+  }
+  e.target.value = "";
+  toast(`Imported ${count} record${count===1?"":"s"}.` + (skipped ? ` Skipped ${skipped} row${skipped===1?"":"s"} with unknown task/location.` : ""));
+  skipNextRefresh = true;
+  render();
+});
+
+/* ---------------- Router ---------------- */
+async function render(){
+  if (activeTab==="overview") await renderOverview();
+  else if (activeTab==="history") await renderHistory();
+  else await renderPeriodTab(activeTab);
+}
+
+if (typeof google === "undefined" || !google.script){
+  main.innerHTML = `
+    <div class="alert-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+      <div>
+        <strong>Not running as a deployed web app</strong>
+        This page needs to be opened at its published Google Apps Script URL (ending in /exec) for
+        it to load or save data. Deploy it first (Deploy → New deployment → Web app), then always
+        use that URL — not a locally saved copy of this file.
+      </div>
+    </div>`;
+} else {
+  refreshCache().then(render);
+}
+</script>
+</body>
+</html>

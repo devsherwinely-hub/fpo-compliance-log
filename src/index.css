@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Liquid Glass material system (iOS 27 idiom, warm-paper world).
+   --glass: 0 = ultra clear, 1 = fully tinted. Driven by the Glass slider
+   in the sidebar (persisted), mirroring Settings → Appearance. */
+@layer base {
+  :root {
+    --paper: #F6F5F2;
+    --card: #FCFBF9;
+    --glass: 0.45;
+    --glass-tint: #F6F5F2;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: var(--paper);
+    text-rendering: optimizeLegibility;
+  }
+  .font-sans {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+      system-ui, 'Segoe UI', sans-serif;
+  }
+  .font-serif {
+    font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  }
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: #1c1917;
+    color: #fafaf9;
+  }
+  :focus-visible {
+    outline: 2px solid #1c1917;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  ::placeholder {
+    color: #78716c;
+    opacity: 1;
+  }
+  /* Display type: tight tracking + tight leading, per size. */
+  .display-tight {
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+}
+
+@layer components {
+  /* Floating toolbar material: translucent, content scrolls under.
+     Darkened edge + bright top-edge specular highlight = iOS 27 glass. */
+  .glass-bar {
+    background: color-mix(in srgb, var(--glass-tint) calc(52% + var(--glass) * 38%), transparent);
+    -webkit-backdrop-filter: blur(calc(26px - var(--glass) * 10px)) saturate(180%);
+    backdrop-filter: blur(calc(26px - var(--glass) * 10px)) saturate(180%);
+    border-bottom: 1px solid rgba(28, 25, 23, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+  /* Scroll-edge: uniform, higher-contrast toolbar once content slides under. */
+  .glass-bar.scrolled {
+    background: color-mix(in srgb, var(--glass-tint) calc(78% + var(--glass) * 18%), transparent);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      0 4px 16px rgba(28, 25, 23, 0.08);
+  }
+  /* Heavier structural material for the sidebar. */
+  .glass-rail {
+    background: color-mix(in srgb, #ffffff calc(62% + var(--glass) * 30%), transparent);
+    -webkit-backdrop-filter: blur(calc(30px - var(--glass) * 10px)) saturate(170%);
+    backdrop-filter: blur(calc(30px - var(--glass) * 10px)) saturate(170%);
+    border-right: 1px solid rgba(28, 25, 23, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+  /* Cards: light glass — readable, with specular top light + soft depth. */
+  .glass-card {
+    background: color-mix(in srgb, var(--card) calc(82% + var(--glass) * 14%), transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid rgba(28, 25, 23, 0.09);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      0 1px 2px rgba(28, 25, 23, 0.05),
+      0 8px 24px rgba(28, 25, 23, 0.06);
+  }
+  /* iOS segmented control. */
+  .segmented {
+    background: rgba(28, 25, 23, 0.07);
+    border-radius: 10px;
+    padding: 2px;
+  }
+}
+
+/* Instant press feedback — lives on pointer-down, never on release. */
+@layer utilities {
+  .pressable {
+    transition: transform 100ms ease-out;
+  }
+  .pressable:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Touch targets: 44px minimum on coarse-pointer small screens. */
+@media (pointer: coarse) and (max-width: 768px) {
+  button,
+  select,
+  input {
+    min-height: 44px;
+  }
+}
+
+/* Reduced motion: cross-fades only — no slides, no springs, no overshoot.
+   Transforms still apply instantly (state stays legible) but never animate.
+   (Motion springs are also switched off via MotionConfig reducedMotion="user".) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-property: opacity, background-color, color, border-color, box-shadow !important;
+  }
+  .pressable:active {
+    transform: none;
+  }
+}
+
+/* iOS 27 honors Reduce Transparency aggressively: frostier, near-solid. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass-bar,
+  .glass-rail,
+  .glass-card {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass-bar,
+  .glass-rail {
+    background: var(--glass-tint);
+  }
+  .glass-card {
+    background: var(--card);
+  }
+}
+
+/* Increase Contrast: near-solid surfaces with defined borders. */
+@media (prefers-contrast: more) {
+  .glass-bar,
+  .glass-rail,
+  .glass-card {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: #ffffff;
+    border-color: #1c1917;
+  }
+}
