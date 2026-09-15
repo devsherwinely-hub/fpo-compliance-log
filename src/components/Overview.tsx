@@ -149,15 +149,15 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
       return { done, total };
     };
 
-    // Yesterday's daily items still unlogged
-    const overdue: string[] = [];
+    // Yesterday's daily items still unlogged, grouped by checklist so
+    // "3 tasks × 3 locations" reads as 3 rows instead of 9.
+    const overdueGroups: Array<{ name: string; locs: string[] }> = [];
     for (const t of TASKS.filter((t) => t.freq === 'daily')) {
-      for (const loc of locsFor(t.perLoc)) {
-        if (!records[recordKey(t.id, loc, yKey)]?.done) {
-          overdue.push(`${t.name} — ${loc}`);
-        }
-      }
+      const missing = locsFor(t.perLoc).filter((loc) => !records[recordKey(t.id, loc, yKey)]?.done);
+      if (missing.length > 0) overdueGroups.push({ name: t.name, locs: missing });
     }
+    const overdueCount = overdueGroups.reduce((s, g) => s + g.locs.length, 0);
+    const locScope = locsFor(true).length;
 
     // Flagged entries in current periods
     const flagged: string[] = [];
@@ -194,7 +194,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
       });
     }
 
-    return { d: compliance('daily'), w: compliance('weekly'), m: compliance('monthly'), overdue, flagged, outstanding, breakdown };
+    return { d: compliance('daily'), w: compliance('weekly'), m: compliance('monthly'), overdueGroups, overdueCount, locScope, flagged, outstanding, breakdown };
   }, [records, locFilter]);
 
 
@@ -236,7 +236,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           </ul>
         </motion.section>
       )}
-      {data.overdue.length > 0 && (
+      {data.overdueCount > 0 && (
         <motion.section
           role="alert"
           initial={{ opacity: 0, scale: 0.98 }}
@@ -245,11 +245,16 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           className="rounded-2xl border border-alert-border bg-alert-bg px-4 py-3.5"
         >
           <h2 className="text-sm font-semibold text-alert-text">
-            {data.overdue.length} item{data.overdue.length > 1 ? 's' : ''} from yesterday still unlogged
+            {data.overdueCount} item{data.overdueCount > 1 ? 's' : ''} from yesterday still unlogged
           </h2>
           <ul className="mt-1.5 space-y-1">
-            {data.overdue.map((n) => (
-              <li key={n} className="text-[13px] text-alert-text">• {n}</li>
+            {data.overdueGroups.map((g) => (
+              <li key={g.name} className="text-[13px] text-alert-text">
+                • {g.name} —{' '}
+                {g.locs.length === data.locScope && data.locScope > 1
+                  ? `all ${data.locScope} locations`
+                  : g.locs.join(', ')}
+              </li>
             ))}
           </ul>
         </motion.section>
