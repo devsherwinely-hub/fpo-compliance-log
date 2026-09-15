@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import type { User } from '@supabase/supabase-js';
 import { tick } from '../lib/haptics';
 import { isSupabaseConfigured, signOut } from '../lib/supabase';
+import { APP_VERSION } from '../lib/version';
 import type { NavSectionId } from '../lib/types';
 
 interface NavItem {
@@ -206,7 +207,7 @@ export function Sidebar({ active, onNavigate, open, onClose, glass, onGlassChang
             aria-label="Liquid Glass clarity"
             className="mt-1.5 w-full accent-stone-900"
           />
-          <p className="mt-2 font-mono text-[11px] text-stone-600">v2.4.1 · Audit-ready</p>
+          <p className="mt-2 font-mono text-[11px] text-stone-600">v{APP_VERSION} · Audit-ready</p>
           {isSupabaseConfigured ? (
             <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-700">
               <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
