@@ -1,12 +1,16 @@
 # agent-spec
 
-Pure markdown documentation repository — the Linux Foundation Agentic AI standard for configuring AI coding agents. Designed to be copied into other projects, not run as an application.
+This repo has two unrelated parts:
+
+1. **`spec/` — agent-spec**: markdown documentation, the Linux Foundation Agentic AI standard for configuring AI coding agents. Designed to be copied into other projects, not run as an application.
+2. **`src/` — a real app**: FPO Safety & Compliance Log, a React + Vite + Supabase checklist-compliance dashboard. See `CLAUDE.md` for its architecture.
 
 ## Commands
 
-- **Build**: None (documentation only)
-- **Test**: None (documentation only)
-- **Lint**: None (markdown files are manually reviewed)
+- **Build**: `npm run build` (app only; `spec/` has no build)
+- **Test**: None (no test suite configured for the app; `spec/` is documentation only)
+- **Lint**: None (app has no lint script; markdown files are manually reviewed)
+- **Dev server**: `npm run dev`
 
 ## Documentation Style
 

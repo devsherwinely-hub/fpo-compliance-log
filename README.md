@@ -39,11 +39,7 @@ agent-spec/
 │   └── spec.v1.schema.json    # Schema for core specification formats
 ├── scripts/                   # Audit and validation scripts
 │   └── audit-compliance.js    # Automated compliance and rule enforcement script
-├── src/                       # CLI tooling, compiler, and linter source code
-│   ├── cli/                   # Command line interface implementation
-│   ├── compiler/              # Specification compilation utilities
-│   ├── linter/                # Rule validation and static analysis engine
-│   └── types/                 # TypeScript type definitions
+├── src/                       # Unrelated app: FPO Safety & Compliance Log (React + Vite + Supabase), see CLAUDE.md
 ├── spec/
 │   ├── context/               # Project specification templates with placeholder markers
 │   ├── core/                  # Normative Tier-4 governance standards
