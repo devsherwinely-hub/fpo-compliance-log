@@ -30,6 +30,15 @@
   select {
     color-scheme: light;
   }
+  /* The popup is pinned light above, but <option> still inherits the
+     closed control's `color` (often a near-white dark:text-* class) —
+     that near-white text on the light popup is what looked "broken".
+     Pin option colors directly so they never depend on the ambient
+     theme class. */
+  select option {
+    color: #1c1917;
+    background-color: #ffffff;
+  }
   html {
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
