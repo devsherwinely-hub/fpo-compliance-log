@@ -121,6 +121,35 @@ function SecondaryStats({ stats }: { stats: SecondaryStat[] }) {
   );
 }
 
+// TERTIARY: per-frequency detail behind the blended Compliance Rate number
+// above — one container, three columns, not three separate glass cards.
+function PeriodBreakdown({
+  periods,
+}: {
+  periods: Array<{ label: string; sub: string; v: { done: number; total: number } }>;
+}) {
+  return (
+    <div className="glass-card grid grid-cols-1 divide-y divide-stone-900/5 rounded-2xl dark:divide-white/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      {periods.map((p) => {
+        const pv = pct(p.v.done, p.v.total);
+        const cls = pctClass(pv);
+        return (
+          <div key={p.label} className="px-4 py-3 sm:px-3.5">
+            <div className="flex items-baseline justify-between gap-2">
+              <p className="text-[13px] font-semibold text-stone-800 dark:text-stone-100">{p.label}</p>
+              <p className={`font-sans text-xl font-bold tabular-nums ${VALUE_STYLES[cls]}`}>{pv}%</p>
+            </div>
+            <p className="text-xs text-stone-600 dark:text-stone-400">{p.v.done}/{p.v.total} · {p.sub}</p>
+            <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15">
+              <div className={`h-full rounded-full ${BAR_STYLES[cls]}`} style={{ width: `${pv}%` }} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function Overview({ records, locFilter, onLocChange, onGotoDaily }: OverviewProps) {
   const data = useMemo(() => {
     const now = new Date();
@@ -286,6 +315,14 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           ]}
         />
       </div>
+
+      <PeriodBreakdown
+        periods={[
+          { label: 'Today', sub: 'daily', v: data.d },
+          { label: 'This week', sub: 'weekly', v: data.w },
+          { label: 'This month', sub: 'monthly', v: data.m },
+        ]}
+      />
 
       <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
         <div className="lg:col-span-3">
