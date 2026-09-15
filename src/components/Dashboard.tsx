@@ -70,6 +70,7 @@ export function Dashboard({ user }: { user: User | null }) {
   };
   const [overviewLoc, setOverviewLoc] = useState('All');
   const [defaultTab, setDefaultTab] = useState<NavSectionId>(readDefaultTab);
+  const [historyStatusFilter, setHistoryStatusFilter] = useState<'All' | 'flagged'>('All');
 
   const { records, loading, saving, error: recordsError, refresh, saveEntry, undoEntry } = useRecords();
   const { push, stack } = useToasts();
@@ -218,10 +219,14 @@ export function Dashboard({ user }: { user: User | null }) {
                     records={records}
                     locFilter={overviewLoc}
                     onLocChange={setOverviewLoc}
-                    onGotoDaily={() => setSection('daily')}
+                    onGotoSection={(freq) => setSection(freq)}
+                    onViewOpenIssues={() => {
+                      setHistoryStatusFilter('flagged');
+                      setSection('history');
+                    }}
                   />
                 ) : section === 'history' ? (
-                  <HistoryView records={records} />
+                  <HistoryView records={records} initialStatusFilter={historyStatusFilter} />
                 ) : section === 'settings' ? (
                   <UserSettings
                     user={user}

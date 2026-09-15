@@ -20,7 +20,8 @@ interface OverviewProps {
   records: RecordMap;
   locFilter: string;
   onLocChange: (loc: string) => void;
-  onGotoDaily: () => void;
+  onGotoSection: (freq: ChecklistFrequency) => void;
+  onViewOpenIssues: () => void;
 }
 
 function pct(done: number, total: number): number {
@@ -47,15 +48,6 @@ const BAR_STYLES: Record<string, string> = {
   warn: 'bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-400 dark:to-amber-500',
   danger: 'bg-gradient-to-r from-red-500 to-alert-text dark:from-red-400 dark:to-alert-text',
 };
-
-function WarningIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
-      <path d="M12 9v4M12 17h.01" />
-    </svg>
-  );
-}
 
 const CARD_SPRING = { type: 'spring', bounce: 0, duration: 0.5 } as const;
 
@@ -150,7 +142,97 @@ function PeriodBreakdown({
   );
 }
 
-export function Overview({ records, locFilter, onLocChange, onGotoDaily }: OverviewProps) {
+interface AttentionItem {
+  key: string;
+  title: string;
+  freq: ChecklistFrequency;
+  severity: 'critical' | 'warn';
+  statusLabel: string;
+  detail: string;
+}
+
+const ATTENTION_DOT: Record<AttentionItem['severity'], string> = {
+  critical: 'bg-alert-text',
+  warn: 'bg-amber-500',
+};
+const ATTENTION_BADGE: Record<AttentionItem['severity'], string> = {
+  critical: 'bg-alert-bg text-alert-text',
+  warn: 'bg-amber-50 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300',
+};
+
+// Prioritized, itemized, actionable — replaces the separate flagged/overdue
+// banners from Phase 1 with one section instead of stacking several.
+function NeedsAttention({ items, onReview }: { items: AttentionItem[]; onReview: (freq: ChecklistFrequency) => void }) {
+  return (
+    <section className="glass-card overflow-hidden rounded-2xl">
+      <div className="border-b border-stone-900/5 px-4 py-3 dark:border-white/10 sm:px-5">
+        <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-100">Needs attention</h3>
+      </div>
+      {items.length === 0 ? (
+        <p className="px-4 py-4 text-[13px] text-emerald-700 dark:text-emerald-400 sm:px-5">
+          Nothing needs attention. All caught up.
+        </p>
+      ) : (
+        <ul className="divide-y divide-stone-900/5 dark:divide-white/10">
+          {items.map((item) => (
+            <li key={item.key} className="flex items-center gap-3 px-4 py-2.5 sm:px-5">
+              <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${ATTENTION_DOT[item.severity]}`} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[13.5px] font-medium text-stone-800 dark:text-stone-100">{item.title}</p>
+                <p className="truncate text-xs text-stone-600 dark:text-stone-400">{item.detail}</p>
+              </div>
+              <span className={`hidden shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold sm:inline-block ${ATTENTION_BADGE[item.severity]}`}>
+                {item.statusLabel}
+              </span>
+              <motion.button
+                type="button"
+                onClick={() => { tick(); onReview(item.freq); }}
+                whileTap={{ scale: 0.94 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                className="h-8 shrink-0 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3.5 text-xs font-semibold text-stone-700 dark:text-stone-300"
+              >
+                Review
+              </motion.button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+interface QuickAction {
+  label: string;
+  onClick: () => void;
+  primary?: boolean;
+}
+
+// Compact single row, no cards — existing actions only (routes to tabs
+// that already exist via setSection).
+function QuickActions({ actions }: { actions: QuickAction[] }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {actions.map((a) => (
+        <motion.button
+          key={a.label}
+          type="button"
+          onClick={() => { tick(); a.onClick(); }}
+          whileTap={{ scale: 0.96 }}
+          transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+          className={
+            a.primary
+              ? 'h-9 rounded-full bg-stone-900 px-4 text-[13px] font-semibold text-white dark:bg-white dark:text-black'
+              : 'h-9 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-4 text-[13px] font-semibold text-stone-700 dark:text-stone-300'
+          }
+        >
+          {a.label}
+        </motion.button>
+      ))}
+    </div>
+  );
+}
+
+export function Overview({ records, locFilter, onLocChange, onGotoSection, onViewOpenIssues }: OverviewProps) {
   const data = useMemo(() => {
     const now = new Date();
     const dKey = fmtDate(now);
@@ -188,11 +270,37 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
     const locScope = locsFor(true).length;
 
     // Flagged entries in current periods
-    const flagged: string[] = [];
+    const issueItems: AttentionItem[] = [];
     for (const t of TASKS) {
       for (const loc of locsFor(t.perLoc)) {
         const r = records[recordKey(t.id, loc, periodFor[t.freq])];
-        if (r?.done && r.flag) flagged.push(`${t.name} — ${loc}: ${r.flag}`);
+        if (r?.done && r.flag) {
+          issueItems.push({
+            key: `issue:${t.id}:${loc}`,
+            title: loc === 'all' ? t.name : `${t.name} — ${loc}`,
+            freq: t.freq,
+            severity: 'critical',
+            statusLabel: 'Flagged',
+            detail: r.flag,
+          });
+        }
+      }
+    }
+
+    // Weekly/monthly items not yet logged before their period closes.
+    const dueSoonItems: AttentionItem[] = [];
+    for (const t of TASKS.filter((t) => t.freq === 'weekly' || t.freq === 'monthly')) {
+      for (const loc of locsFor(t.perLoc)) {
+        if (!records[recordKey(t.id, loc, periodFor[t.freq])]?.done) {
+          dueSoonItems.push({
+            key: `duesoon:${t.id}:${loc}`,
+            title: loc === 'all' ? t.name : `${t.name} — ${loc}`,
+            freq: t.freq,
+            severity: 'warn',
+            statusLabel: 'Due soon',
+            detail: t.freq === 'weekly' ? 'Due this week' : 'Due this month',
+          });
+        }
       }
     }
 
@@ -228,12 +336,28 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
     // Compliance rate: blended across every checklist due this period
     // (same universe the completion-mix donut uses), not just today's daily log.
     const complianceRate = { done: d.done + w.done + m.done, total: d.total + w.total + m.total };
-    // Due soon: weekly/monthly items not yet logged before their period closes.
-    // No due-date scheduling exists in this app yet, so this reuses the
-    // existing weekly/monthly completion counts rather than inventing one.
-    const dueSoon = (w.total - w.done) + (m.total - m.done);
 
-    return { d, w, m, complianceRate, dueSoon, overdueGroups, overdueCount, locScope, flagged, outstanding, breakdown };
+    const overdueItems: AttentionItem[] = overdueGroups.flatMap((g) =>
+      g.locs.map((loc) => ({
+        key: `overdue:${g.name}:${loc}`,
+        title: loc === 'all' ? g.name : `${g.name} — ${loc}`,
+        freq: 'daily' as ChecklistFrequency,
+        severity: 'critical' as const,
+        statusLabel: 'Overdue',
+        detail: 'Since yesterday',
+      }))
+    );
+    // Priority order: critical (overdue, then flagged issues) before warn (due soon).
+    const attentionItems = [...overdueItems, ...issueItems, ...dueSoonItems];
+
+    return {
+      d, w, m, complianceRate,
+      dueSoon: dueSoonItems.length,
+      overdueGroups, overdueCount, locScope,
+      issueCount: issueItems.length,
+      attentionItems,
+      outstanding, breakdown,
+    };
   }, [records, locFilter]);
 
   return (
@@ -253,57 +377,13 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
         </select>
       </div>
 
-      {data.flagged.length > 0 && (
-        <motion.section
-          role="alert"
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={CARD_SPRING}
-          className="rounded-2xl border border-amber-200/70 bg-amber-50 px-4 py-3.5 dark:border-amber-500/30 dark:bg-amber-500/10"
-        >
-          <div className="flex items-start gap-2">
-            <WarningIcon className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-400" />
-            <div className="min-w-0 flex-1">
-              <h2 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                {data.flagged.length} reading{data.flagged.length > 1 ? 's' : ''} need attention
-              </h2>
-              <ul className="mt-1.5 space-y-1 pl-4">
-                {data.flagged.map((n) => (
-                  <li key={n} className="list-disc text-[13px] text-amber-800 marker:text-amber-500 dark:text-amber-300">{n}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </motion.section>
-      )}
-      {data.overdueCount > 0 && (
-        <motion.section
-          role="alert"
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={CARD_SPRING}
-          className="rounded-2xl border border-alert-border bg-alert-bg px-4 py-3.5"
-        >
-          <div className="flex items-start gap-2">
-            <WarningIcon className="mt-0.5 shrink-0 text-alert-text" />
-            <div className="min-w-0 flex-1">
-              <h2 className="text-sm font-semibold text-alert-text">
-                {data.overdueCount} item{data.overdueCount > 1 ? 's' : ''} from yesterday still unlogged
-              </h2>
-              <ul className="mt-1.5 space-y-1 pl-4">
-                {data.overdueGroups.map((g) => (
-                  <li key={g.name} className="list-disc text-[13px] text-alert-text marker:text-alert-border">
-                    {g.name} —{' '}
-                    {g.locs.length === data.locScope && data.locScope > 1
-                      ? `all ${data.locScope} locations`
-                      : g.locs.join(', ')}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </motion.section>
-      )}
+      <QuickActions
+        actions={[
+          { label: '+ New Compliance Log', onClick: () => onGotoSection('daily'), primary: true },
+          { label: `Review Overdue Items${data.overdueCount ? ` (${data.overdueCount})` : ''}`, onClick: () => onGotoSection('daily') },
+          { label: `View Open Issues${data.issueCount ? ` (${data.issueCount})` : ''}`, onClick: onViewOpenIssues },
+        ]}
+      />
 
       <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
         <ComplianceRateCard v={data.complianceRate} />
@@ -311,7 +391,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           stats={[
             { value: data.dueSoon, label: 'Due soon', context: 'Weekly & monthly, this period', tone: 'blue' },
             { value: data.overdueCount, label: 'Overdue', context: 'Daily, since yesterday', tone: 'danger' },
-            { value: data.flagged.length, label: 'Open issues', context: 'Flagged for review', tone: 'amber' },
+            { value: data.issueCount, label: 'Open issues', context: 'Flagged for review', tone: 'amber' },
           ]}
         />
       </div>
@@ -323,6 +403,8 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           { label: 'This month', sub: 'monthly', v: data.m },
         ]}
       />
+
+      <NeedsAttention items={data.attentionItems} onReview={onGotoSection} />
 
       <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
         <div className="lg:col-span-3">
@@ -341,7 +423,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
             <p className="text-[13px] text-stone-600 dark:text-stone-400">Nothing outstanding for today. Audit-ready.</p>
             <motion.button
               type="button"
-              onClick={() => { tick(); onGotoDaily(); }}
+              onClick={() => { tick(); onGotoSection('daily'); }}
               whileTap={{ scale: 0.94 }}
               transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
               className="h-8 shrink-0 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3.5 text-xs font-semibold text-stone-700 dark:text-stone-300"
@@ -362,7 +444,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
                 <span className="truncate text-stone-800 dark:text-stone-100">{o.name} — {o.loc}</span>
                 <motion.button
                   type="button"
-                  onClick={() => { tick(); onGotoDaily(); }}
+                  onClick={() => { tick(); onGotoSection('daily'); }}
                   whileTap={{ scale: 0.94 }}
                   transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
                   className="h-8 shrink-0 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3.5 text-xs font-semibold text-stone-700 dark:text-stone-300"

@@ -38,11 +38,16 @@ function periodsFor(freq: ChecklistFrequency): Period[] {
   });
 }
 
-export function HistoryView({ records }: { records: RecordMap }) {
+interface HistoryViewProps {
+  records: RecordMap;
+  initialStatusFilter?: 'All' | 'done' | 'pending' | 'flagged';
+}
+
+export function HistoryView({ records, initialStatusFilter = 'All' }: HistoryViewProps) {
   const [freq, setFreq] = useState<ChecklistFrequency>('daily');
   const [taskFilter, setTaskFilter] = useState('All');
   const [locFilter, setLocFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState(initialStatusFilter);
 
   const tasksForFreq = useMemo(() => TASKS.filter((t) => t.freq === freq), [freq]);
   const usesRealLocations = tasksForFreq.some((t) => t.perLoc);
@@ -104,7 +109,7 @@ export function HistoryView({ records }: { records: RecordMap }) {
             ))}
           </select>
         )}
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Status" className="h-9 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3 text-[13px]">
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)} aria-label="Status" className="h-9 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3 text-[13px]">
           <option value="All">All statuses</option>
           <option value="done">Logged</option>
           <option value="pending">Missing</option>
