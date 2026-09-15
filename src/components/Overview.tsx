@@ -59,14 +59,8 @@ function WarningIcon({ className }: { className?: string }) {
 
 const CARD_SPRING = { type: 'spring', bounce: 0, duration: 0.5 } as const;
 
-// Status-tinted ambient wash: depth that carries meaning, barely there.
-const WASH: Record<string, string> = {
-  ok: 'bg-[radial-gradient(120%_100%_at_85%_0%,rgba(16,185,129,0.10),transparent_60%)] dark:bg-[radial-gradient(120%_100%_at_85%_0%,rgba(52,211,153,0.14),transparent_60%)]',
-  warn: 'bg-[radial-gradient(120%_100%_at_85%_0%,rgba(245,158,11,0.10),transparent_60%)] dark:bg-[radial-gradient(120%_100%_at_85%_0%,rgba(251,191,36,0.14),transparent_60%)]',
-  danger: 'bg-[radial-gradient(120%_100%_at_85%_0%,rgba(220,38,38,0.08),transparent_60%)] dark:bg-[radial-gradient(120%_100%_at_85%_0%,rgba(248,113,113,0.14),transparent_60%)]',
-};
-
-function HeroCard({ v, todayLabel }: { v: { done: number; total: number }; todayLabel: string }) {
+// PRIMARY: the one number that answers "are we compliant right now."
+function ComplianceRateCard({ v }: { v: { done: number; total: number } }) {
   const p = pct(v.done, v.total);
   const shown = useCountUp(p);
   const cls = pctClass(p);
@@ -75,23 +69,18 @@ function HeroCard({ v, todayLabel }: { v: { done: number; total: number }; today
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={CARD_SPRING}
-      className={`glass-card relative overflow-hidden rounded-2xl p-5 sm:p-6 lg:col-span-3 ${CARD_STYLES[cls]}`}
+      className={`glass-card relative rounded-2xl border-l-4 p-5 sm:p-6 lg:col-span-3 ${CARD_STYLES[cls]}`}
     >
-      <div aria-hidden className={`pointer-events-none absolute inset-0 ${WASH[cls]}`} />
-      <div className="relative flex flex-wrap items-end justify-between gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600 dark:text-stone-400">Today&apos;s daily log</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600 dark:text-stone-400">Compliance rate</p>
           <p className={`display-tight mt-1 font-sans text-6xl font-bold tabular-nums sm:text-7xl ${VALUE_STYLES[cls]}`}>
             {shown}<span className="text-3xl">%</span>
           </p>
+          <p className="mt-1 text-[13px] text-stone-600 dark:text-stone-400">{v.done} of {v.total} checklists this period</p>
         </div>
-        <p className="pb-1 text-right text-[13px] leading-snug text-stone-600 dark:text-stone-400">
-          {v.done} of {v.total} logged
-          <br />
-          <span className="font-mono text-xs">{todayLabel}</span>
-        </p>
       </div>
-      <div className="relative mt-4 h-2 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15">
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15">
         <motion.div
           className={`h-full origin-left rounded-full ${BAR_STYLES[cls]}`}
           initial={{ scaleX: 0 }}
@@ -103,31 +92,32 @@ function HeroCard({ v, todayLabel }: { v: { done: number; total: number }; today
   );
 }
 
-function CompactCard({ label, sub, v, index }: { label: string; sub: string; v: { done: number; total: number }; index: number }) {
-  const p = pct(v.done, v.total);
-  const shown = useCountUp(p);
-  const cls = pctClass(p);
+interface SecondaryStat {
+  value: number;
+  label: string;
+  context: string;
+  tone: 'blue' | 'amber' | 'danger';
+}
+
+const STAT_VALUE_STYLES: Record<SecondaryStat['tone'], string> = {
+  blue: 'text-sky-700 dark:text-sky-400',
+  amber: 'text-amber-700 dark:text-amber-400',
+  danger: 'text-alert-text',
+};
+
+// SECONDARY: one container, not three competing cards — items needing
+// attention, ranked by urgency (due soon → overdue → open issues).
+function SecondaryStats({ stats }: { stats: SecondaryStat[] }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...CARD_SPRING, delay: 0.06 * (index + 1) }}
-      className="glass-card flex flex-1 items-center gap-3 rounded-2xl px-4 py-3"
-    >
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] font-semibold text-stone-800 dark:text-stone-100">{label}</p>
-        <p className="text-xs text-stone-600 dark:text-stone-400">{v.done}/{v.total} · {sub}</p>
-        <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15">
-          <motion.div
-            className={`h-full origin-left rounded-full ${BAR_STYLES[cls]}`}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: Math.max(shown, 0) / 100 }}
-            transition={{ type: 'spring', bounce: 0, duration: 0.6 }}
-          />
+    <div className="glass-card grid grid-cols-1 divide-y divide-stone-900/5 rounded-2xl dark:divide-white/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0 lg:col-span-2">
+      {stats.map((s) => (
+        <div key={s.label} className="px-4 py-3 sm:px-3.5">
+          <p className={`font-sans text-2xl font-bold tabular-nums ${STAT_VALUE_STYLES[s.tone]}`}>{s.value}</p>
+          <p className="text-[13px] font-semibold text-stone-800 dark:text-stone-100">{s.label}</p>
+          <p className="text-xs text-stone-600 dark:text-stone-400">{s.context}</p>
         </div>
-      </div>
-      <span className={`font-sans text-2xl font-bold tabular-nums ${VALUE_STYLES[cls]}`}>{shown}%</span>
-    </motion.div>
+      ))}
+    </div>
   );
 }
 
@@ -203,12 +193,19 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
       });
     }
 
-    return { d: compliance('daily'), w: compliance('weekly'), m: compliance('monthly'), overdueGroups, overdueCount, locScope, flagged, outstanding, breakdown };
+    const d = compliance('daily');
+    const w = compliance('weekly');
+    const m = compliance('monthly');
+    // Compliance rate: blended across every checklist due this period
+    // (same universe the completion-mix donut uses), not just today's daily log.
+    const complianceRate = { done: d.done + w.done + m.done, total: d.total + w.total + m.total };
+    // Due soon: weekly/monthly items not yet logged before their period closes.
+    // No due-date scheduling exists in this app yet, so this reuses the
+    // existing weekly/monthly completion counts rather than inventing one.
+    const dueSoon = (w.total - w.done) + (m.total - m.done);
+
+    return { d, w, m, complianceRate, dueSoon, overdueGroups, overdueCount, locScope, flagged, outstanding, breakdown };
   }, [records, locFilter]);
-
-
-
-  const todayLabel = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
     <div className="space-y-4">
@@ -280,11 +277,14 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
       )}
 
       <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
-        <HeroCard v={data.d} todayLabel={todayLabel} />
-        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 lg:col-span-2 lg:flex-col">
-          <CompactCard label="This week" sub="weekly" v={data.w} index={0} />
-          <CompactCard label="This month" sub="monthly" v={data.m} index={1} />
-        </div>
+        <ComplianceRateCard v={data.complianceRate} />
+        <SecondaryStats
+          stats={[
+            { value: data.dueSoon, label: 'Due soon', context: 'Weekly & monthly, this period', tone: 'blue' },
+            { value: data.overdueCount, label: 'Overdue', context: 'Daily, since yesterday', tone: 'danger' },
+            { value: data.flagged.length, label: 'Open issues', context: 'Flagged for review', tone: 'amber' },
+          ]}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
@@ -384,15 +384,6 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           </tbody>
         </table>
         </div>
-      </section>
-
-      <section className="glass-card rounded-2xl p-4 sm:p-5">
-        <h3 className="display-tight font-sans text-lg font-bold text-stone-900 dark:text-white">Facility</h3>
-        <p className="mt-1 text-[13px] leading-relaxed text-stone-600 dark:text-stone-400">
-          Tracking {TASKS.length} checklist types across daily, weekly, and monthly cadences —
-          lock checks, fridge logs, glucometer controls, eye wash station, AED, emergency
-          medication kits, supply audits, and i-STAT controls.
-        </p>
       </section>
     </div>
   );

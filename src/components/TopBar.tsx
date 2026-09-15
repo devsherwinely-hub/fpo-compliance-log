@@ -6,13 +6,15 @@ interface TopBarProps {
   onMenuClick: () => void;
   dateLabel: string;
   title?: string;
+  subtitle?: string;
   onExport: () => void;
   onImportFile: (file: File) => void;
+  primaryAction?: { label: string; onClick: () => void };
 }
 
 // Floating glass toolbar. Gains its uniform scroll-edge treatment once
 // content slides underneath (iOS 27 scroll-edge behavior).
-export function TopBar({ onMenuClick, dateLabel, title = 'Compliance Overview', onExport, onImportFile }: TopBarProps) {
+export function TopBar({ onMenuClick, dateLabel, title = 'Compliance Overview', subtitle, onExport, onImportFile, primaryAction }: TopBarProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function TopBar({ onMenuClick, dateLabel, title = 'Compliance Overview', 
             {title}
           </h1>
           <p className="truncate text-xs font-medium text-stone-600 dark:text-stone-400 sm:text-[13px]">
-            {dateLabel} · Emergency equipment, medication, and supply checklists
+            {subtitle ?? `${dateLabel} · Emergency equipment, medication, and supply checklists`}
           </p>
         </div>
 
@@ -60,7 +62,7 @@ export function TopBar({ onMenuClick, dateLabel, title = 'Compliance Overview', 
           <motion.label
             whileTap={{ scale: 0.95 }}
             transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-            className="flex h-9 cursor-pointer items-center rounded-full bg-stone-900 px-4 text-[13px] font-semibold text-white dark:bg-white dark:text-black"
+            className="flex h-9 cursor-pointer items-center rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-4 text-[13px] font-semibold text-stone-700 dark:text-stone-300"
           >
             Import
             <input
@@ -74,6 +76,17 @@ export function TopBar({ onMenuClick, dateLabel, title = 'Compliance Overview', 
               }}
             />
           </motion.label>
+          {primaryAction && (
+            <motion.button
+              type="button"
+              onClick={() => { tick(); primaryAction.onClick(); }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+              className="h-9 rounded-full bg-stone-900 px-4 text-[13px] font-semibold text-white dark:bg-white dark:text-black"
+            >
+              {primaryAction.label}
+            </motion.button>
+          )}
         </div>
       </div>
     </header>

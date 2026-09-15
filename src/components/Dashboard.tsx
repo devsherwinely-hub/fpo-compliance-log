@@ -22,7 +22,7 @@ const DATE_LABEL = new Date().toLocaleDateString('en-US', {
 });
 
 const SECTION_TITLES: Record<NavSectionId, string> = {
-  overview: 'Compliance Overview',
+  overview: 'Dashboard',
   daily: 'Daily Checklists',
   weekly: 'Weekly Checklists',
   monthly: 'Monthly Checklists',
@@ -173,8 +173,10 @@ export function Dashboard({ user }: { user: User | null }) {
           onMenuClick={() => setSidebarOpen(true)}
           dateLabel={DATE_LABEL}
           title={SECTION_TITLES[section]}
+          subtitle={section === 'overview' ? "Here's your current compliance status and what needs attention." : undefined}
           onExport={handleExport}
           onImportFile={handleImport}
+          primaryAction={section === 'overview' ? { label: '+ New Compliance Log', onClick: () => setSection('daily') } : undefined}
         />
 
         <main id="main" className="mx-auto max-w-5xl space-y-4 px-4 py-5 sm:px-6 lg:px-8">
