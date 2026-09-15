@@ -81,37 +81,37 @@ export function HistoryView({ records }: { records: RecordMap }) {
   return (
     <div className="space-y-3">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-serif text-xl font-bold text-stone-900">History</h2>
-        <span className="font-mono text-xs text-stone-600">filter and browse below</span>
+        <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-white">History</h2>
+        <span className="font-mono text-xs text-stone-600 dark:text-stone-400">filter and browse below</span>
       </div>
       <div className="flex flex-wrap gap-2">
-        <select value={freq} onChange={(e) => { setFreq(e.target.value as ChecklistFrequency); setTaskFilter('All'); }} aria-label="Frequency" className="h-9 rounded-full border border-stone-300/70 bg-white/60 px-3 text-[13px]">
+        <select value={freq} onChange={(e) => { setFreq(e.target.value as ChecklistFrequency); setTaskFilter('All'); }} aria-label="Frequency" className="h-9 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3 text-[13px]">
           <option value="daily">Daily</option>
           <option value="weekly">Weekly</option>
           <option value="monthly">Monthly</option>
         </select>
-        <select value={taskFilter} onChange={(e) => setTaskFilter(e.target.value)} aria-label="Checklist" className="h-9 rounded-full border border-stone-300/70 bg-white/60 px-3 text-[13px]">
+        <select value={taskFilter} onChange={(e) => setTaskFilter(e.target.value)} aria-label="Checklist" className="h-9 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3 text-[13px]">
           <option value="All">All checklists</option>
           {tasksForFreq.map((t) => (
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
         {usesRealLocations && (
-          <select value={locFilter} onChange={(e) => setLocFilter(e.target.value)} aria-label="Location" className="h-9 rounded-full border border-stone-300/70 bg-white/60 px-3 text-[13px]">
+          <select value={locFilter} onChange={(e) => setLocFilter(e.target.value)} aria-label="Location" className="h-9 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3 text-[13px]">
             <option value="All">All locations</option>
             {LOCATIONS.map((l) => (
               <option key={l} value={l}>{l}</option>
             ))}
           </select>
         )}
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Status" className="h-9 rounded-full border border-stone-300/70 bg-white/60 px-3 text-[13px]">
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Status" className="h-9 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3 text-[13px]">
           <option value="All">All statuses</option>
           <option value="done">Logged</option>
           <option value="pending">Missing</option>
           <option value="flagged">Flagged</option>
         </select>
       </div>
-      <p className="text-xs text-stone-600">
+      <p className="text-xs text-stone-600 dark:text-stone-400">
         {rows.all.length} records match — {doneCount} logged, {flaggedCount} flagged.
       </p>
       {rows.periods.map((p, gi) => {
@@ -125,17 +125,17 @@ export function HistoryView({ records }: { records: RecordMap }) {
             transition={{ type: 'spring', bounce: 0, duration: 0.4, delay: Math.min(gi * 0.04, 0.2) }}
             className="glass-card overflow-hidden rounded-2xl"
           >
-            <p className="border-b border-stone-200 bg-white/60 px-4 py-2 text-xs font-bold uppercase tracking-wide text-stone-600">
+            <p className="border-b border-stone-200 dark:border-white/10 bg-white/60 dark:bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wide text-stone-600 dark:text-stone-400">
               {p.label}
             </p>
-            <ul className="divide-y divide-stone-200/70">
+            <ul className="divide-y divide-stone-200/70 dark:divide-white/10">
               {group.map((r, i) => (
                 <li key={i} className={`flex items-center justify-end gap-2 px-4 py-2.5 text-[13px] ${r.flagged ? 'bg-alert-bg' : ''}`}>
-                  <span className="flex-1 truncate text-stone-800">{r.taskName}{r.loc !== 'all' ? ` — ${r.loc}` : ''}</span>
+                  <span className="flex-1 truncate text-stone-800 dark:text-stone-100">{r.taskName}{r.loc !== 'all' ? ` — ${r.loc}` : ''}</span>
                   {r.flagged && (
                     <span className="rounded-full bg-alert-bg px-2 py-0.5 text-[11px] font-semibold text-alert-text">Flagged</span>
                   )}
-                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${r.done ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${r.done ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300' : 'bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300'}`}>
                     {r.done ? 'Logged' : 'Missing'}
                   </span>
                 </li>

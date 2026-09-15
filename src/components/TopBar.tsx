@@ -31,7 +31,7 @@ export function TopBar({ onMenuClick, dateLabel, title = 'Compliance Overview', 
           aria-label="Open navigation"
           whileTap={{ scale: 0.92 }}
           transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-300/70 bg-white/60 text-stone-700 lg:hidden"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 text-stone-700 dark:text-stone-300 lg:hidden"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
             <path d="M4 7h16M4 12h16M4 17h16" />
@@ -39,10 +39,10 @@ export function TopBar({ onMenuClick, dateLabel, title = 'Compliance Overview', 
         </motion.button>
 
         <div className="min-w-0 flex-1">
-          <h1 className="display-tight truncate font-sans text-xl font-bold text-stone-900 sm:text-2xl">
+          <h1 className="display-tight truncate font-sans text-xl font-bold text-stone-900 dark:text-white sm:text-2xl">
             {title}
           </h1>
-          <p className="truncate text-xs font-medium text-stone-600 sm:text-[13px]">
+          <p className="truncate text-xs font-medium text-stone-600 dark:text-stone-400 sm:text-[13px]">
             {dateLabel} · Emergency equipment, medication, and supply checklists
           </p>
         </div>
@@ -53,14 +53,14 @@ export function TopBar({ onMenuClick, dateLabel, title = 'Compliance Overview', 
             onClick={() => { tick(); onExport(); }}
             whileTap={{ scale: 0.95 }}
             transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-            className="h-9 rounded-full border border-stone-300/70 bg-white/60 px-4 text-[13px] font-semibold text-stone-700"
+            className="h-9 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-4 text-[13px] font-semibold text-stone-700 dark:text-stone-300"
           >
             Export
           </motion.button>
           <motion.label
             whileTap={{ scale: 0.95 }}
             transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-            className="flex h-9 cursor-pointer items-center rounded-full bg-stone-900 px-4 text-[13px] font-semibold text-white"
+            className="flex h-9 cursor-pointer items-center rounded-full bg-stone-900 px-4 text-[13px] font-semibold text-white dark:bg-white dark:text-black"
           >
             Import
             <input

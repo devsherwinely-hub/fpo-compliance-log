@@ -93,10 +93,10 @@ export function Sidebar({ active, onNavigate, open, onClose, user }: SidebarProp
               F
             </span>
             <div>
-              <p className="display-tight text-[15px] font-bold leading-tight text-stone-900">
+              <p className="display-tight text-[15px] font-bold leading-tight text-stone-900 dark:text-white">
                 FPO Safety &amp; Compliance Log
               </p>
-              <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600">
+              <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600 dark:text-stone-400">
                 Clinical Operations
               </p>
             </div>
@@ -106,7 +106,7 @@ export function Sidebar({ active, onNavigate, open, onClose, user }: SidebarProp
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           {NAV_GROUPS.map((group) => (
             <div key={group.title} className="mb-5 last:mb-0">
-              <p className="px-3 pb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-stone-600">
+              <p className="px-3 pb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-stone-600 dark:text-stone-400">
                 {group.title}
               </p>
               <ul className="space-y-0.5">
@@ -126,8 +126,8 @@ export function Sidebar({ active, onNavigate, open, onClose, user }: SidebarProp
                         transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
                         className={`flex w-full items-center rounded-xl px-3 py-2 text-[13.5px] ${
                           isActive
-                            ? 'bg-stone-900 font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]'
-                            : 'font-medium text-stone-600 hover:bg-stone-900/5 hover:text-stone-900'
+                            ? 'bg-stone-900 font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] dark:bg-white dark:text-black dark:shadow-none'
+                            : 'font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-900/5 dark:hover:bg-white/10 hover:text-stone-900 dark:hover:text-white'
                         }`}
                       >
                         <span
@@ -165,11 +165,11 @@ export function Sidebar({ active, onNavigate, open, onClose, user }: SidebarProp
                 </span>
               )}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-semibold text-stone-900">
+                <p className="truncate text-[13px] font-semibold text-stone-900 dark:text-white">
                   {user.user_metadata?.full_name || user.email}
                 </p>
                 {user.user_metadata?.full_name && (
-                  <p className="truncate text-xs text-stone-600">{user.email}</p>
+                  <p className="truncate text-xs text-stone-600 dark:text-stone-400">{user.email}</p>
                 )}
               </div>
               <motion.button
@@ -179,7 +179,7 @@ export function Sidebar({ active, onNavigate, open, onClose, user }: SidebarProp
                 transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
                 aria-label="Sign out"
                 title="Sign out"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-stone-600 hover:bg-stone-900/5 hover:text-stone-900"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-stone-600 dark:text-stone-400 hover:bg-stone-900/5 dark:hover:bg-white/10 hover:text-stone-900 dark:hover:text-white"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -192,14 +192,14 @@ export function Sidebar({ active, onNavigate, open, onClose, user }: SidebarProp
         )}
 
         <div className="border-t border-stone-900/10 px-5 py-4">
-          <p className="font-mono text-[11px] text-stone-600">v{APP_VERSION} · Audit-ready</p>
+          <p className="font-mono text-[11px] text-stone-600 dark:text-stone-400">v{APP_VERSION} · Audit-ready</p>
           {isSupabaseConfigured ? (
-            <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-700">
+            <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
               <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Supabase connected
             </p>
           ) : (
-            <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-amber-700">
+            <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-400">
               <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber-500" />
               Offline demo mode
             </p>

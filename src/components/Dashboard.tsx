@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { User } from '@supabase/supabase-js';
 import { useRecords } from '../hooks/useRecords';
@@ -30,7 +30,6 @@ const SECTION_TITLES: Record<NavSectionId, string> = {
   settings: 'Settings',
 };
 
-const GLASS_KEY = 'fpo-glass-clarity';
 const DEFAULT_TAB_KEY = 'fpo-default-tab';
 
 const CONTENT_TABS: NavSectionId[] = ['overview', 'daily', 'weekly', 'monthly', 'history'];
@@ -52,18 +51,9 @@ export function Dashboard({ user }: { user: User | null }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [overviewLoc, setOverviewLoc] = useState('All');
   const [defaultTab, setDefaultTab] = useState<NavSectionId>(readDefaultTab);
-  const [glass, setGlass] = useState(() => {
-    const raw = Number(localStorage.getItem(GLASS_KEY));
-    return Number.isFinite(raw) && raw >= 0 && raw <= 1 ? raw : 0.45;
-  });
 
   const { records, loading, saving, error: recordsError, refresh, saveEntry, undoEntry } = useRecords();
   const { push, stack } = useToasts();
-
-  const handleGlass = (v: number) => {
-    setGlass(v);
-    localStorage.setItem(GLASS_KEY, String(v));
-  };
 
   const handleDefaultTab = (t: NavSectionId) => {
     setDefaultTab(t);
@@ -72,9 +62,7 @@ export function Dashboard({ user }: { user: User | null }) {
   };
 
   const handleResetPrefs = () => {
-    localStorage.removeItem(GLASS_KEY);
     localStorage.removeItem(DEFAULT_TAB_KEY);
-    setGlass(0.45);
     setDefaultTab('overview');
     push('Preferences reset');
   };
@@ -127,13 +115,10 @@ export function Dashboard({ user }: { user: User | null }) {
   };
 
   return (
-    <div
-      className="min-h-dvh bg-paper font-sans text-stone-800 antialiased"
-      style={{ '--glass': glass } as CSSProperties}
-    >
+    <div className="min-h-dvh bg-paper font-sans text-stone-800 dark:text-stone-100 antialiased dark:bg-black dark:text-stone-100">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[110] focus:rounded-full focus:bg-stone-900 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[110] focus:rounded-full focus:bg-stone-900 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white dark:focus:bg-white dark:focus:text-black"
       >
         Skip to content
       </a>
@@ -200,8 +185,6 @@ export function Dashboard({ user }: { user: User | null }) {
                 ) : section === 'settings' ? (
                   <UserSettings
                     user={user}
-                    glass={glass}
-                    onGlassChange={handleGlass}
                     defaultTab={defaultTab}
                     onDefaultTabChange={handleDefaultTab}
                     onResetPrefs={handleResetPrefs}
@@ -220,7 +203,7 @@ export function Dashboard({ user }: { user: User | null }) {
             </AnimatePresence>
           )}
 
-          <p className="pb-6 pt-1 text-center font-mono text-[11px] text-stone-600">
+          <p className="pb-6 pt-1 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
             Showing: {section} · {Object.keys(records).length} records · HIPAA-audit log retained 6 yrs
           </p>
         </main>

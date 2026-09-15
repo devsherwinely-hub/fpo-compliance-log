@@ -32,7 +32,7 @@ export function LoginScreen({ error }: { error?: string | null }) {
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-paper px-4 font-sans">
+    <div className="flex min-h-dvh items-center justify-center bg-paper px-4 font-sans dark:bg-black">
       <motion.div
         initial={{ opacity: 0, y: 16, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -45,10 +45,10 @@ export function LoginScreen({ error }: { error?: string | null }) {
         >
           F
         </span>
-        <h1 className="display-tight mt-4 text-2xl font-bold text-stone-900">
+        <h1 className="display-tight mt-4 text-2xl font-bold text-stone-900 dark:text-white">
           FPO Safety &amp; Compliance Log
         </h1>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-stone-600">
+        <p className="mt-1.5 text-[13px] leading-relaxed text-stone-600 dark:text-stone-400">
           Clinical checklist compliance for your practice. Sign in with your Google workspace account to continue.
         </p>
 
@@ -58,7 +58,7 @@ export function LoginScreen({ error }: { error?: string | null }) {
           disabled={busy}
           whileTap={{ scale: 0.97 }}
           transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-          className="mt-6 flex h-12 w-full items-center justify-center gap-3 rounded-full border border-stone-300/70 bg-white/70 text-[15px] font-semibold text-stone-900 shadow-sm disabled:opacity-60"
+          className="mt-6 flex h-12 w-full items-center justify-center gap-3 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/70 dark:bg-white/10 text-[15px] font-semibold text-stone-900 dark:text-white shadow-sm disabled:opacity-60"
         >
           <GoogleMark />
           {busy ? 'Redirecting…' : 'Continue with Google'}
@@ -70,7 +70,7 @@ export function LoginScreen({ error }: { error?: string | null }) {
           </p>
         )}
 
-        <p className="mt-5 font-mono text-[11px] leading-relaxed text-stone-600">
+        <p className="mt-5 font-mono text-[11px] leading-relaxed text-stone-600 dark:text-stone-400">
           Access is limited to authorized staff.
           <br />
           All entries are audit-logged.

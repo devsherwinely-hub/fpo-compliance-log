@@ -61,10 +61,10 @@ function ToggleGroup({
         const lv = o.toLowerCase();
         const tone =
           lv === 'yes' || lv === 'pass'
-            ? 'text-emerald-700'
+            ? 'text-emerald-700 dark:text-emerald-400'
             : lv === 'no' || lv === 'fail'
               ? 'text-alert-text'
-              : 'text-amber-700';
+              : 'text-amber-700 dark:text-amber-400';
         return (
           <motion.button
             key={o}
@@ -75,7 +75,7 @@ function ToggleGroup({
             whileTap={{ scale: 0.94 }}
             transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
             className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold ${
-              active ? `bg-white ${tone} shadow-sm` : 'text-stone-600'
+              active ? `bg-white ${tone} shadow-sm` : 'text-stone-600 dark:text-stone-400'
             }`}
           >
             {o}
@@ -106,7 +106,7 @@ function FieldInput({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-stone-300/70 bg-white/70 px-2 py-1.5 text-[13px]"
+        className="w-full rounded-xl border border-stone-300/70 dark:border-white/20 bg-white/70 dark:bg-white/10 px-2 py-1.5 text-[13px]"
       >
         <option value="">— select —</option>
         {f.options!.map((o) => (
@@ -121,7 +121,7 @@ function FieldInput({
         type="checkbox"
         checked={value === 'yes'}
         onChange={(e) => { tick(); onChange(e.target.checked ? 'yes' : 'no'); }}
-        className="h-5 w-5 accent-stone-900"
+        className="h-5 w-5 accent-stone-900 dark:accent-white"
       />
     );
   }
@@ -131,7 +131,7 @@ function FieldInput({
         type="date"
         value={value || fmtDate(new Date())}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-stone-300/70 bg-white/70 px-2 py-1.5 text-[13px]"
+        className="w-full rounded-xl border border-stone-300/70 dark:border-white/20 bg-white/70 dark:bg-white/10 px-2 py-1.5 text-[13px]"
       />
     );
   }
@@ -141,7 +141,7 @@ function FieldInput({
         type="time"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-stone-300/70 bg-white/70 px-2 py-1.5 text-[13px]"
+        className="w-full rounded-xl border border-stone-300/70 dark:border-white/20 bg-white/70 dark:bg-white/10 px-2 py-1.5 text-[13px]"
       />
     );
   }
@@ -151,7 +151,7 @@ function FieldInput({
       step={f.type === 'number' ? '0.1' : undefined}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-xl border border-stone-300/70 bg-white/70 px-2 py-1.5 text-[13px]"
+      className="w-full rounded-xl border border-stone-300/70 dark:border-white/20 bg-white/70 dark:bg-white/10 px-2 py-1.5 text-[13px]"
     />
   );
 }
@@ -166,7 +166,7 @@ function Summary({ taskId, fields }: { taskId: string; fields: FieldValues }) {
     <div>
       {items.length > 0 && (
         <>
-          <p className="mt-2 text-[12.5px] text-stone-600">{checked} of {items.length} items present &amp; in date</p>
+          <p className="mt-2 text-[12.5px] text-stone-600 dark:text-stone-400">{checked} of {items.length} items present &amp; in date</p>
           {missing.length > 0 && (
             <p className="mt-1 text-[12.5px] font-medium text-alert-text">Missing/expired: {missing.join(', ')}</p>
           )}
@@ -177,8 +177,8 @@ function Summary({ taskId, fields }: { taskId: string; fields: FieldValues }) {
           <tbody>
             {others.map((f) => (
               <tr key={f.key}>
-                <td className="py-0.5 pr-3 text-stone-600">{f.label}</td>
-                <td className="py-0.5 font-mono font-semibold text-stone-800">{String(fields[f.key!] ?? '—')}</td>
+                <td className="py-0.5 pr-3 text-stone-600 dark:text-stone-400">{f.label}</td>
+                <td className="py-0.5 font-mono font-semibold text-stone-800 dark:text-stone-100">{String(fields[f.key!] ?? '—')}</td>
               </tr>
             ))}
           </tbody>
@@ -247,16 +247,16 @@ function TaskCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[14.5px] font-semibold text-stone-800">{taskName}</p>
-          <p className="mt-0.5 text-xs text-stone-600">{loc} · {periodLabel}</p>
+          <p className="text-[14.5px] font-semibold text-stone-800 dark:text-stone-100">{taskName}</p>
+          <p className="mt-0.5 text-xs text-stone-600 dark:text-stone-400">{loc} · {periodLabel}</p>
         </div>
         <span
           className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${
             flagged
               ? 'bg-alert-bg text-alert-text'
               : done
-                ? 'bg-emerald-50 text-emerald-800'
-                : 'bg-amber-50 text-amber-800'
+                ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300'
+                : 'bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300'
           }`}
         >
           {flagged ? 'Flagged' : done ? 'Complete' : 'Pending'}
@@ -266,10 +266,10 @@ function TaskCard({
       {done && record ? (
         <div>
           <Summary taskId={taskId} fields={record.fields} />
-          {record.note && <p className="mt-1.5 text-[13px] text-stone-600">Note: {record.note}</p>}
+          {record.note && <p className="mt-1.5 text-[13px] text-stone-600 dark:text-stone-400">Note: {record.note}</p>}
           {record.flag && <p className="mt-1.5 text-[13px] font-medium text-alert-text">⚠ {record.flag}</p>}
           {record.logged_at && (
-            <p className="mt-1 font-mono text-[11px] text-stone-600">Logged {new Date(record.logged_at).toLocaleString()}</p>
+            <p className="mt-1 font-mono text-[11px] text-stone-600 dark:text-stone-400">Logged {new Date(record.logged_at).toLocaleString()}</p>
           )}
           <motion.button
             type="button"
@@ -277,7 +277,7 @@ function TaskCard({
             disabled={saving}
             whileTap={{ scale: 0.96 }}
             transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-            className="mt-2.5 h-9 rounded-full border border-stone-300/70 bg-white/60 px-4 text-[13px] font-semibold text-stone-600 disabled:opacity-60"
+            className="mt-2.5 h-9 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-4 text-[13px] font-semibold text-stone-600 dark:text-stone-400 disabled:opacity-60"
           >
             Undo
           </motion.button>
@@ -288,14 +288,14 @@ function TaskCard({
             {schema.map((f, i) => {
               if (f.type === 'header') {
                 return (
-                  <p key={i} className="mt-1 border-t border-stone-200 pt-2 text-xs font-bold uppercase tracking-wide text-stone-900 sm:col-span-2">
+                  <p key={i} className="mt-1 border-t border-stone-200 dark:border-white/10 pt-2 text-xs font-bold uppercase tracking-wide text-stone-900 dark:text-white sm:col-span-2">
                     {f.label}
                   </p>
                 );
               }
               const isToggle = f.type === 'checkbox' || f.type === 'yesno' || (f.type === 'select' && f.options!.length <= 3);
               return (
-                <label key={f.key} className={`flex gap-2 text-[12.5px] text-stone-600 ${isToggle ? 'flex-row items-center' : 'flex-col'}`}>
+                <label key={f.key} className={`flex gap-2 text-[12.5px] text-stone-600 dark:text-stone-400 ${isToggle ? 'flex-row items-center' : 'flex-col'}`}>
                   {isToggle ? (
                     <>
                       <FieldInput f={f} value={fields[f.key!] ?? ''} onChange={(v) => set(f.key!, v)} />
@@ -316,7 +316,7 @@ function TaskCard({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Additional note (optional)"
-            className="mt-2.5 w-full rounded-xl border border-stone-300/70 bg-white/70 px-2.5 py-1.5 text-[13px]"
+            className="mt-2.5 w-full rounded-xl border border-stone-300/70 dark:border-white/20 bg-white/70 dark:bg-white/10 px-2.5 py-1.5 text-[13px]"
           />
           <motion.button
             type="button"
@@ -324,7 +324,7 @@ function TaskCard({
             disabled={saving}
             whileTap={{ scale: 0.96 }}
             transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-            className="mt-2.5 h-10 rounded-full bg-stone-900 px-5 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] disabled:opacity-60"
+            className="mt-2.5 h-10 rounded-full bg-stone-900 px-5 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] disabled:opacity-60 dark:bg-white dark:text-black dark:shadow-none"
           >
             Save entry
           </motion.button>
@@ -336,7 +336,7 @@ function TaskCard({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Optional note"
-            className="mt-2.5 w-full rounded-xl border border-stone-300/70 bg-white/70 px-3 py-2 text-[13px]"
+            className="mt-2.5 w-full rounded-xl border border-stone-300/70 dark:border-white/20 bg-white/70 dark:bg-white/10 px-3 py-2 text-[13px]"
           />
           <motion.button
             type="button"
@@ -344,7 +344,7 @@ function TaskCard({
             disabled={saving}
             whileTap={{ scale: 0.96 }}
             transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-            className="mt-2.5 h-10 rounded-full bg-stone-900 px-5 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] disabled:opacity-60"
+            className="mt-2.5 h-10 rounded-full bg-stone-900 px-5 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] disabled:opacity-60 dark:bg-white dark:text-black dark:shadow-none"
           >
             Mark complete
           </motion.button>
@@ -366,25 +366,25 @@ export function ChecklistSection(props: ChecklistSectionProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-serif text-xl font-bold text-stone-900">
+        <h2 className="font-serif text-xl font-bold text-stone-900 dark:text-white">
           {freq[0].toUpperCase() + freq.slice(1)} checklist
         </h2>
-        <span className="font-mono text-xs text-stone-600">{periodLabel}</span>
+        <span className="font-mono text-xs text-stone-600 dark:text-stone-400">{periodLabel}</span>
       </div>
       {hasSharedLoc && (
         <div className="flex flex-wrap items-center gap-2">
-          <label htmlFor="tabLoc" className="text-[13px] text-stone-600">Location:</label>
+          <label htmlFor="tabLoc" className="text-[13px] text-stone-600 dark:text-stone-400">Location:</label>
           <select
             id="tabLoc"
             value={tabLoc}
             onChange={(e) => setTabLoc(e.target.value)}
-            className="h-9 rounded-xl border border-stone-300/70 bg-white/70 px-2.5 text-[13px] font-medium"
+            className="h-9 rounded-xl border border-stone-300/70 dark:border-white/20 bg-white/70 dark:bg-white/10 px-2.5 text-[13px] font-medium"
           >
             {LOCATIONS.map((l) => (
               <option key={l} value={l}>{l}</option>
             ))}
           </select>
-          <span className="text-xs text-stone-600">applies to all location-based checklists below</span>
+          <span className="text-xs text-stone-600 dark:text-stone-400">applies to all location-based checklists below</span>
         </div>
       )}
       {tasks.map((t) => {

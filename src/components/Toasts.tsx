@@ -32,7 +32,7 @@ export function useToasts() {
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
             transition={{ type: 'spring', bounce: 0.15, duration: 0.45 }}
             className={`pointer-events-auto rounded-2xl px-4 py-3 text-[13px] font-medium leading-snug shadow-xl backdrop-blur-xl ${
-              t.error ? 'bg-alert-text/95 text-white' : 'bg-stone-900/90 text-white'
+              t.error ? 'bg-alert-text/95 text-white' : 'bg-stone-900/90 text-white dark:bg-white dark:text-black'
             }`}
           >
             {t.message}

@@ -30,18 +30,18 @@ function pctClass(p: number): string {
 }
 
 const CARD_STYLES: Record<string, string> = {
-  ok: 'border-emerald-200/70',
+  ok: 'border-emerald-200/70 dark:border-emerald-500/30',
   warn: 'border-amber-200/70',
   danger: 'border-alert-border',
 };
 const VALUE_STYLES: Record<string, string> = {
-  ok: 'text-emerald-700',
-  warn: 'text-amber-700',
+  ok: 'text-emerald-700 dark:text-emerald-400',
+  warn: 'text-amber-700 dark:text-amber-400',
   danger: 'text-alert-text',
 };
 const BAR_STYLES: Record<string, string> = {
-  ok: 'bg-emerald-600',
-  warn: 'bg-amber-600',
+  ok: 'bg-emerald-600 dark:bg-emerald-400',
+  warn: 'bg-amber-600 dark:bg-amber-400',
   danger: 'bg-alert-text',
 };
 
@@ -135,18 +135,18 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
       >
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600">Today&apos;s daily log</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600 dark:text-stone-400">Today&apos;s daily log</p>
             <p className={`display-tight mt-1 font-sans text-6xl font-bold tabular-nums sm:text-7xl ${VALUE_STYLES[cls]}`}>
               {p}<span className="text-3xl">%</span>
             </p>
           </div>
-          <p className="pb-1 text-right text-[13px] leading-snug text-stone-600">
+          <p className="pb-1 text-right text-[13px] leading-snug text-stone-600 dark:text-stone-400">
             {v.done} of {v.total} logged
             <br />
             <span className="font-mono text-xs">{todayLabel}</span>
           </p>
         </div>
-        <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-900/10">
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15">
           <motion.div
             className={`h-full rounded-full ${BAR_STYLES[cls]}`}
             initial={false}
@@ -170,9 +170,9 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
         className="glass-card flex flex-1 items-center gap-3 rounded-2xl px-4 py-3"
       >
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold text-stone-800">{label}</p>
-          <p className="text-xs text-stone-600">{v.done}/{v.total} · {sub}</p>
-          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-stone-900/10">
+          <p className="truncate text-[13px] font-semibold text-stone-800 dark:text-stone-100">{label}</p>
+          <p className="text-xs text-stone-600 dark:text-stone-400">{v.done}/{v.total} · {sub}</p>
+          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15">
             <motion.div
               className={`h-full rounded-full ${BAR_STYLES[cls]}`}
               initial={false}
@@ -191,12 +191,12 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <label htmlFor="overviewLoc" className="text-[13px] text-stone-600">Location:</label>
+        <label htmlFor="overviewLoc" className="text-[13px] text-stone-600 dark:text-stone-400">Location:</label>
         <select
           id="overviewLoc"
           value={locFilter}
           onChange={(e) => onLocChange(e.target.value)}
-          className="h-9 rounded-full border border-stone-300/70 bg-white/60 px-3 text-[13px] font-medium text-stone-800"
+          className="h-9 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3 text-[13px] font-medium text-stone-800 dark:text-stone-100"
         >
           <option value="All">All locations</option>
           {LOCATIONS.map((l) => (
@@ -252,22 +252,22 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
 
       <section className="glass-card rounded-2xl p-4 sm:p-5">
         <div className="mb-2 flex items-baseline justify-between">
-          <h3 className="text-sm font-semibold text-stone-800">Outstanding today</h3>
-          <span className="font-mono text-[11px] text-stone-600">daily items not yet logged</span>
+          <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-100">Outstanding today</h3>
+          <span className="font-mono text-[11px] text-stone-600 dark:text-stone-400">daily items not yet logged</span>
         </div>
         {data.outstanding.length === 0 ? (
-          <p className="py-2 text-[13px] text-stone-600">Nothing outstanding for today.</p>
+          <p className="py-2 text-[13px] text-stone-600 dark:text-stone-400">Nothing outstanding for today.</p>
         ) : (
-          <ul className="divide-y divide-stone-900/5">
+          <ul className="divide-y divide-stone-900/5 dark:divide-white/10">
             {data.outstanding.map((o) => (
               <li key={`${o.name}|${o.loc}`} className="flex items-center justify-between gap-3 py-2.5 text-[13.5px]">
-                <span className="truncate text-stone-800">{o.name} — {o.loc}</span>
+                <span className="truncate text-stone-800 dark:text-stone-100">{o.name} — {o.loc}</span>
                 <motion.button
                   type="button"
                   onClick={() => { tick(); onGotoDaily(); }}
                   whileTap={{ scale: 0.94 }}
                   transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-                  className="h-8 shrink-0 rounded-full border border-stone-300/70 bg-white/60 px-3.5 text-xs font-semibold text-stone-700"
+                  className="h-8 shrink-0 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3.5 text-xs font-semibold text-stone-700 dark:text-stone-300"
                 >
                   Log now
                 </motion.button>
@@ -278,14 +278,14 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
       </section>
 
       <section className="glass-card overflow-hidden rounded-2xl">
-        <div className="border-b border-stone-900/5 bg-white/40 px-4 py-3 sm:px-5">
-          <h3 className="text-sm font-semibold text-stone-800">Compliance by location</h3>
-          <p className="font-mono text-[11px] text-stone-600">today / this week / this month</p>
+        <div className="border-b border-stone-900/5 bg-white/40 dark:bg-white/5 px-4 py-3 sm:px-5">
+          <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-100">Compliance by location</h3>
+          <p className="font-mono text-[11px] text-stone-600 dark:text-stone-400">today / this week / this month</p>
         </div>
         <div className="overflow-x-auto">
         <table className="w-full min-w-[480px] border-collapse text-[13px]">
           <thead>
-            <tr className="text-[11px] uppercase tracking-wide text-stone-600">
+            <tr className="text-[11px] uppercase tracking-wide text-stone-600 dark:text-stone-400">
               <th className="px-4 py-2 text-left font-semibold" />
               <th className="px-2 py-2 font-semibold">Daily</th>
               <th className="px-2 py-2 font-semibold">Weekly</th>
@@ -295,14 +295,14 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           <tbody>
             {LOCATIONS.map((loc) => (
               <tr key={loc} className="border-t border-stone-900/5">
-                <td className="px-4 py-3 text-left font-semibold text-stone-800">{loc}</td>
+                <td className="px-4 py-3 text-left font-semibold text-stone-800 dark:text-stone-100">{loc}</td>
                 {(['daily', 'weekly', 'monthly'] as ChecklistFrequency[]).map((f) => {
                   const v = data.breakdown[loc][f];
                   const p = pct(v.done, v.total);
                   return (
                     <td key={f} className="px-2 py-3 text-center">
                       <span className={`font-sans text-base font-bold tabular-nums ${VALUE_STYLES[pctClass(p)]}`}>{p}%</span>
-                      <div className="font-mono text-[11px] text-stone-600">{v.done}/{v.total}</div>
+                      <div className="font-mono text-[11px] text-stone-600 dark:text-stone-400">{v.done}/{v.total}</div>
                     </td>
                   );
                 })}
@@ -314,8 +314,8 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
       </section>
 
       <section className="glass-card rounded-2xl p-4 sm:p-5">
-        <h3 className="display-tight font-sans text-lg font-bold text-stone-900">Facility</h3>
-        <p className="mt-1 text-[13px] leading-relaxed text-stone-600">
+        <h3 className="display-tight font-sans text-lg font-bold text-stone-900 dark:text-white">Facility</h3>
+        <p className="mt-1 text-[13px] leading-relaxed text-stone-600 dark:text-stone-400">
           Tracking {TASKS.length} checklist types across daily, weekly, and monthly cadences —
           lock checks, fridge logs, glucometer controls, eye wash station, AED, emergency
           medication kits, supply audits, and i-STAT controls.
