@@ -199,6 +199,7 @@ function TaskCard({
   onSave,
   onUndo,
   notify,
+  enterDelay = 0,
 }: {
   taskId: string;
   taskName: string;
@@ -210,6 +211,7 @@ function TaskCard({
   onSave: ChecklistSectionProps['onSave'];
   onUndo: ChecklistSectionProps['onUndo'];
   notify: ChecklistSectionProps['notify'];
+  enterDelay?: number;
 }) {
   const schema = FIELD_SCHEMAS[taskId];
   const [fields, setFields] = useState<FieldValues>({});
@@ -242,7 +244,7 @@ function TaskCard({
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', bounce: 0, duration: 0.45 }}
+      transition={{ type: 'spring', bounce: 0, duration: 0.45, delay: enterDelay }}
       className={`glass-card rounded-2xl p-4 ${flagged ? 'border-l-[3px] border-l-alert-text' : done ? 'border-l-[3px] border-l-emerald-600' : ''}`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -387,7 +389,7 @@ export function ChecklistSection(props: ChecklistSectionProps) {
           <span className="text-xs text-stone-600 dark:text-stone-400">applies to all location-based checklists below</span>
         </div>
       )}
-      {tasks.map((t) => {
+      {tasks.map((t, i) => {
         const loc = t.perLoc ? tabLoc : 'all';
         return (
           <TaskCard
@@ -402,6 +404,7 @@ export function ChecklistSection(props: ChecklistSectionProps) {
             onSave={props.onSave}
             onUndo={props.onUndo}
             notify={props.notify}
+            enterDelay={Math.min(i * 0.05, 0.25)}
           />
         );
       })}

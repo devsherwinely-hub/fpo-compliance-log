@@ -12,6 +12,7 @@ import {
 } from '../lib/catalog';
 import type { RecordMap } from '../hooks/useRecords';
 import { tick } from '../lib/haptics';
+import { useCountUp } from '../hooks/useCountUp';
 import { TrendCard } from './TrendCard';
 
 interface OverviewProps {
@@ -47,6 +48,78 @@ const BAR_STYLES: Record<string, string> = {
 };
 
 const CARD_SPRING = { type: 'spring', bounce: 0, duration: 0.5 } as const;
+
+// Status-tinted ambient wash: depth that carries meaning, barely there.
+const WASH: Record<string, string> = {
+  ok: 'bg-[radial-gradient(120%_100%_at_85%_0%,rgba(16,185,129,0.10),transparent_60%)] dark:bg-[radial-gradient(120%_100%_at_85%_0%,rgba(52,211,153,0.14),transparent_60%)]',
+  warn: 'bg-[radial-gradient(120%_100%_at_85%_0%,rgba(245,158,11,0.10),transparent_60%)] dark:bg-[radial-gradient(120%_100%_at_85%_0%,rgba(251,191,36,0.14),transparent_60%)]',
+  danger: 'bg-[radial-gradient(120%_100%_at_85%_0%,rgba(220,38,38,0.08),transparent_60%)] dark:bg-[radial-gradient(120%_100%_at_85%_0%,rgba(248,113,113,0.14),transparent_60%)]',
+};
+
+function HeroCard({ v, todayLabel }: { v: { done: number; total: number }; todayLabel: string }) {
+  const p = pct(v.done, v.total);
+  const shown = useCountUp(p);
+  const cls = pctClass(p);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={CARD_SPRING}
+      className={`glass-card relative overflow-hidden rounded-2xl p-5 sm:p-6 lg:col-span-3 ${CARD_STYLES[cls]}`}
+    >
+      <div aria-hidden className={`pointer-events-none absolute inset-0 ${WASH[cls]}`} />
+      <div className="relative flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600 dark:text-stone-400">Today&apos;s daily log</p>
+          <p className={`display-tight mt-1 font-sans text-6xl font-bold tabular-nums sm:text-7xl ${VALUE_STYLES[cls]}`}>
+            {shown}<span className="text-3xl">%</span>
+          </p>
+        </div>
+        <p className="pb-1 text-right text-[13px] leading-snug text-stone-600 dark:text-stone-400">
+          {v.done} of {v.total} logged
+          <br />
+          <span className="font-mono text-xs">{todayLabel}</span>
+        </p>
+      </div>
+      <div className="relative mt-4 h-2 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15">
+        <motion.div
+          className={`h-full origin-left rounded-full ${BAR_STYLES[cls]}`}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: Math.max(shown, 0) / 100 }}
+          transition={{ type: 'spring', bounce: 0, duration: 0.6 }}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+function CompactCard({ label, sub, v, index }: { label: string; sub: string; v: { done: number; total: number }; index: number }) {
+  const p = pct(v.done, v.total);
+  const shown = useCountUp(p);
+  const cls = pctClass(p);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...CARD_SPRING, delay: 0.06 * (index + 1) }}
+      className="glass-card flex flex-1 items-center gap-3 rounded-2xl px-4 py-3"
+    >
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[13px] font-semibold text-stone-800 dark:text-stone-100">{label}</p>
+        <p className="text-xs text-stone-600 dark:text-stone-400">{v.done}/{v.total} · {sub}</p>
+        <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15">
+          <motion.div
+            className={`h-full origin-left rounded-full ${BAR_STYLES[cls]}`}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: Math.max(shown, 0) / 100 }}
+            transition={{ type: 'spring', bounce: 0, duration: 0.6 }}
+          />
+        </div>
+      </div>
+      <span className={`font-sans text-2xl font-bold tabular-nums ${VALUE_STYLES[cls]}`}>{shown}%</span>
+    </motion.div>
+  );
+}
 
 export function Overview({ records, locFilter, onLocChange, onGotoDaily }: OverviewProps) {
   const data = useMemo(() => {
@@ -123,69 +196,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
     return { d: compliance('daily'), w: compliance('weekly'), m: compliance('monthly'), overdue, flagged, outstanding, breakdown };
   }, [records, locFilter]);
 
-  // Hero: today's number carries the overview; week/month ride compact.
-  const hero = (v: { done: number; total: number }) => {
-    const p = pct(v.done, v.total);
-    const cls = pctClass(p);
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={CARD_SPRING}
-        className={`glass-card rounded-2xl p-5 sm:p-6 lg:col-span-3 ${CARD_STYLES[cls]}`}
-      >
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600 dark:text-stone-400">Today&apos;s daily log</p>
-            <p className={`display-tight mt-1 font-sans text-6xl font-bold tabular-nums sm:text-7xl ${VALUE_STYLES[cls]}`}>
-              {p}<span className="text-3xl">%</span>
-            </p>
-          </div>
-          <p className="pb-1 text-right text-[13px] leading-snug text-stone-600 dark:text-stone-400">
-            {v.done} of {v.total} logged
-            <br />
-            <span className="font-mono text-xs">{todayLabel}</span>
-          </p>
-        </div>
-        <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15">
-          <motion.div
-            className={`h-full rounded-full ${BAR_STYLES[cls]}`}
-            initial={false}
-            animate={{ width: `${p}%` }}
-            transition={{ type: 'spring', bounce: 0, duration: 0.6 }}
-          />
-        </div>
-      </motion.div>
-    );
-  };
 
-  const compact = (label: string, sub: string, v: { done: number; total: number }, i: number) => {
-    const p = pct(v.done, v.total);
-    const cls = pctClass(p);
-    return (
-      <motion.div
-        key={label}
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...CARD_SPRING, delay: 0.06 * (i + 1) }}
-        className="glass-card flex flex-1 items-center gap-3 rounded-2xl px-4 py-3"
-      >
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold text-stone-800 dark:text-stone-100">{label}</p>
-          <p className="text-xs text-stone-600 dark:text-stone-400">{v.done}/{v.total} · {sub}</p>
-          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15">
-            <motion.div
-              className={`h-full rounded-full ${BAR_STYLES[cls]}`}
-              initial={false}
-              animate={{ width: `${p}%` }}
-              transition={{ type: 'spring', bounce: 0, duration: 0.6 }}
-            />
-          </div>
-        </div>
-        <span className={`font-sans text-2xl font-bold tabular-nums ${VALUE_STYLES[cls]}`}>{p}%</span>
-      </motion.div>
-    );
-  };
 
   const todayLabel = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
@@ -244,10 +255,10 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
       )}
 
       <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
-        {hero(data.d)}
+        <HeroCard v={data.d} todayLabel={todayLabel} />
         <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 lg:col-span-2 lg:flex-col">
-          {compact('This week', 'weekly', data.w, 0)}
-          {compact('This month', 'monthly', data.m, 1)}
+          <CompactCard label="This week" sub="weekly" v={data.w} index={0} />
+          <CompactCard label="This month" sub="monthly" v={data.m} index={1} />
         </div>
       </div>
 
@@ -262,8 +273,14 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           <p className="py-2 text-[13px] text-stone-600 dark:text-stone-400">Nothing outstanding for today.</p>
         ) : (
           <ul className="divide-y divide-stone-900/5 dark:divide-white/10">
-            {data.outstanding.map((o) => (
-              <li key={`${o.name}|${o.loc}`} className="flex items-center justify-between gap-3 py-2.5 text-[13.5px]">
+            {data.outstanding.map((o, i) => (
+              <motion.li
+                key={`${o.name}|${o.loc}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.4, delay: Math.min(i * 0.04, 0.24) }}
+                className="flex items-center justify-between gap-3 py-2.5 text-[13.5px]"
+              >
                 <span className="truncate text-stone-800 dark:text-stone-100">{o.name} — {o.loc}</span>
                 <motion.button
                   type="button"
@@ -274,7 +291,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
                 >
                   Log now
                 </motion.button>
-              </li>
+              </motion.li>
             ))}
           </ul>
         )}

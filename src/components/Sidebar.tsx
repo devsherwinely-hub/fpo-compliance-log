@@ -124,19 +124,27 @@ export function Sidebar({ active, onNavigate, open, onClose, user }: SidebarProp
                         aria-current={isActive ? 'page' : undefined}
                         whileTap={{ scale: 0.97 }}
                         transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-                        className={`flex w-full items-center rounded-xl px-3 py-2 text-[13.5px] ${
+                        className={`relative flex w-full items-center rounded-xl px-3 py-2 text-[13.5px] ${
                           isActive
-                            ? 'bg-stone-900 font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] dark:bg-white dark:text-black dark:shadow-none'
-                            : 'font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-900/5 dark:hover:bg-white/10 hover:text-stone-900 dark:hover:text-white'
+                            ? 'font-semibold text-white dark:text-black'
+                            : 'font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
                         }`}
                       >
+                        {isActive && (
+                          <motion.span
+                            layoutId="sidebar-active"
+                            aria-hidden
+                            transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+                            className="absolute inset-0 rounded-xl bg-stone-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] dark:bg-white dark:shadow-none"
+                          />
+                        )}
                         <span
                           aria-hidden
-                          className={`mr-2.5 h-1.5 w-1.5 rounded-full ${
-                            isActive ? 'bg-emerald-300' : 'bg-stone-400'
+                          className={`relative mr-2.5 h-1.5 w-1.5 rounded-full ${
+                            isActive ? 'bg-emerald-300 dark:bg-emerald-600' : 'bg-stone-400'
                           }`}
                         />
-                        {item.label}
+                        <span className="relative">{item.label}</span>
                       </motion.button>
                     </li>
                   );
