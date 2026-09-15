@@ -27,6 +27,7 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   { title: 'Records', items: [{ id: 'history', label: 'History' }] },
+  { title: 'Account', items: [{ id: 'settings', label: 'Settings' }] },
 ];
 
 interface SidebarProps {
@@ -34,14 +35,12 @@ interface SidebarProps {
   onNavigate: (id: NavSectionId) => void;
   open: boolean;
   onClose: () => void;
-  glass: number;
-  onGlassChange: (v: number) => void;
   user: User | null;
 }
 
 // Heavy glass rail. On mobile it's a spring-driven sheet that can be
 // grabbed and reversed mid-flight — never a locked CSS transition.
-export function Sidebar({ active, onNavigate, open, onClose, glass, onGlassChange, user }: SidebarProps) {
+export function Sidebar({ active, onNavigate, open, onClose, user }: SidebarProps) {
   const [desktop, setDesktop] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
   );
@@ -193,21 +192,7 @@ export function Sidebar({ active, onNavigate, open, onClose, glass, onGlassChang
         )}
 
         <div className="border-t border-stone-900/10 px-5 py-4">
-          <label htmlFor="glassRange" className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600">
-            <span>Glass</span>
-            <span className="font-mono normal-case tracking-normal">{glass < 0.33 ? 'Clear' : glass > 0.66 ? 'Tinted' : 'Balanced'}</span>
-          </label>
-          <input
-            id="glassRange"
-            type="range"
-            min={0}
-            max={100}
-            value={Math.round(glass * 100)}
-            onChange={(e) => onGlassChange(Number(e.target.value) / 100)}
-            aria-label="Liquid Glass clarity"
-            className="mt-1.5 w-full accent-stone-900"
-          />
-          <p className="mt-2 font-mono text-[11px] text-stone-600">v{APP_VERSION} · Audit-ready</p>
+          <p className="font-mono text-[11px] text-stone-600">v{APP_VERSION} · Audit-ready</p>
           {isSupabaseConfigured ? (
             <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-700">
               <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-emerald-500" />

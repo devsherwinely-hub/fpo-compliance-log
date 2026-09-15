@@ -12,6 +12,7 @@ import { Overview } from './Overview';
 import { Sidebar } from './Sidebar';
 import { useToasts } from './Toasts';
 import { TopBar } from './TopBar';
+import { UserSettings } from './UserSettings';
 
 const DATE_LABEL = new Date().toLocaleDateString('en-US', {
   weekday: 'long',
@@ -26,9 +27,18 @@ const SECTION_TITLES: Record<NavSectionId, string> = {
   weekly: 'Weekly Checklists',
   monthly: 'Monthly Checklists',
   history: 'History',
+  settings: 'Settings',
 };
 
 const GLASS_KEY = 'fpo-glass-clarity';
+const DEFAULT_TAB_KEY = 'fpo-default-tab';
+
+const CONTENT_TABS: NavSectionId[] = ['overview', 'daily', 'weekly', 'monthly', 'history'];
+
+function readDefaultTab(): NavSectionId {
+  const t = localStorage.getItem(DEFAULT_TAB_KEY);
+  return (CONTENT_TABS as string[]).includes(t ?? '') ? (t as NavSectionId) : 'overview';
+}
 
 // Tab switches ride a critically damped spring from the live on-screen
 // value — grabbing another tab mid-flight reverses without a jump.
@@ -38,9 +48,10 @@ const TAB_TRANSITION = { type: 'spring', bounce: 0, duration: 0.35 } as const;
 // backed by Supabase compliance_records (see supabase/schema-v2.sql).
 // user is null only when Supabase isn't configured (offline demo).
 export function Dashboard({ user }: { user: User | null }) {
-  const [section, setSection] = useState<NavSectionId>('overview');
+  const [section, setSection] = useState<NavSectionId>(readDefaultTab);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [overviewLoc, setOverviewLoc] = useState('All');
+  const [defaultTab, setDefaultTab] = useState<NavSectionId>(readDefaultTab);
   const [glass, setGlass] = useState(() => {
     const raw = Number(localStorage.getItem(GLASS_KEY));
     return Number.isFinite(raw) && raw >= 0 && raw <= 1 ? raw : 0.45;
@@ -52,6 +63,20 @@ export function Dashboard({ user }: { user: User | null }) {
   const handleGlass = (v: number) => {
     setGlass(v);
     localStorage.setItem(GLASS_KEY, String(v));
+  };
+
+  const handleDefaultTab = (t: NavSectionId) => {
+    setDefaultTab(t);
+    localStorage.setItem(DEFAULT_TAB_KEY, t);
+    push(`Opens on ${SECTION_TITLES[t]} from now on`);
+  };
+
+  const handleResetPrefs = () => {
+    localStorage.removeItem(GLASS_KEY);
+    localStorage.removeItem(DEFAULT_TAB_KEY);
+    setGlass(0.45);
+    setDefaultTab('overview');
+    push('Preferences reset');
   };
 
   const handleExport = () => {
@@ -117,8 +142,6 @@ export function Dashboard({ user }: { user: User | null }) {
         onNavigate={setSection}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        glass={glass}
-        onGlassChange={handleGlass}
         user={user}
       />
 
@@ -174,6 +197,15 @@ export function Dashboard({ user }: { user: User | null }) {
                   />
                 ) : section === 'history' ? (
                   <HistoryView records={records} />
+                ) : section === 'settings' ? (
+                  <UserSettings
+                    user={user}
+                    glass={glass}
+                    onGlassChange={handleGlass}
+                    defaultTab={defaultTab}
+                    onDefaultTabChange={handleDefaultTab}
+                    onResetPrefs={handleResetPrefs}
+                  />
                 ) : (
                   <ChecklistSection
                     freq={section}

@@ -41,4 +41,4 @@ export interface AlertItem {
   locationLabel: string;
 }
 
-export type NavSectionId = 'overview' | 'daily' | 'weekly' | 'monthly' | 'history';
+export type NavSectionId = 'overview' | 'daily' | 'weekly' | 'monthly' | 'history' | 'settings';
