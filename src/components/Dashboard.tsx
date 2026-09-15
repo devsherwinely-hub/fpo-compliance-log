@@ -46,7 +46,7 @@ export function Dashboard({ user }: { user: User | null }) {
     return Number.isFinite(raw) && raw >= 0 && raw <= 1 ? raw : 0.45;
   });
 
-  const { records, loading, saving, refresh, saveEntry, undoEntry } = useRecords();
+  const { records, loading, saving, error: recordsError, refresh, saveEntry, undoEntry } = useRecords();
   const { push, stack } = useToasts();
 
   const handleGlass = (v: number) => {
@@ -103,9 +103,15 @@ export function Dashboard({ user }: { user: User | null }) {
 
   return (
     <div
-      className="min-h-screen bg-paper font-sans text-stone-800 antialiased"
+      className="min-h-dvh bg-paper font-sans text-stone-800 antialiased"
       style={{ '--glass': glass } as CSSProperties}
     >
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[110] focus:rounded-full focus:bg-stone-900 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Skip to content
+      </a>
       <Sidebar
         active={section}
         onNavigate={setSection}
@@ -125,7 +131,25 @@ export function Dashboard({ user }: { user: User | null }) {
           onImportFile={handleImport}
         />
 
-        <main className="mx-auto max-w-5xl space-y-4 px-4 py-5 sm:px-6 lg:px-8">
+        <main id="main" className="mx-auto max-w-5xl space-y-4 px-4 py-5 sm:px-6 lg:px-8">
+          {!loading && recordsError && (
+            <section role="alert" className="rounded-2xl border border-alert-border bg-alert-bg px-4 py-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-[13px] font-medium text-alert-text">
+                  Couldn&apos;t load records: {recordsError}
+                </p>
+                <motion.button
+                  type="button"
+                  onClick={() => void refresh()}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                  className="h-8 rounded-full bg-alert-text px-3.5 text-[13px] font-semibold text-white"
+                >
+                  Retry
+                </motion.button>
+              </div>
+            </section>
+          )}
           {loading ? (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4" aria-busy="true">
               {[0, 1, 2].map((i) => (

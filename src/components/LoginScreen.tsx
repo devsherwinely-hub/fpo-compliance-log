@@ -32,7 +32,7 @@ export function LoginScreen({ error }: { error?: string | null }) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-paper px-4 font-sans">
+    <div className="flex min-h-dvh items-center justify-center bg-paper px-4 font-sans">
       <motion.div
         initial={{ opacity: 0, y: 16, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}

@@ -122,20 +122,31 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
     return { d: compliance('daily'), w: compliance('weekly'), m: compliance('monthly'), overdue, flagged, outstanding, breakdown };
   }, [records, locFilter]);
 
-  const card = (label: string, sub: string, v: { done: number; total: number }, i: number) => {
+  // Hero: today's number carries the overview; week/month ride compact.
+  const hero = (v: { done: number; total: number }) => {
     const p = pct(v.done, v.total);
     const cls = pctClass(p);
     return (
       <motion.div
-        key={label}
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ ...CARD_SPRING, delay: i * 0.06 }}
-        className={`glass-card flex-1 rounded-2xl p-4 sm:p-5 ${CARD_STYLES[cls]}`}
+        transition={CARD_SPRING}
+        className={`glass-card rounded-2xl p-5 sm:p-6 lg:col-span-3 ${CARD_STYLES[cls]}`}
       >
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600">{label}</p>
-        <p className={`display-tight mt-1.5 font-sans text-4xl font-bold tabular-nums ${VALUE_STYLES[cls]}`}>{p}<span className="text-2xl">%</span></p>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-stone-900/10">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600">Today&apos;s daily log</p>
+            <p className={`display-tight mt-1 font-sans text-6xl font-bold tabular-nums sm:text-7xl ${VALUE_STYLES[cls]}`}>
+              {p}<span className="text-3xl">%</span>
+            </p>
+          </div>
+          <p className="pb-1 text-right text-[13px] leading-snug text-stone-600">
+            {v.done} of {v.total} logged
+            <br />
+            <span className="font-mono text-xs">{todayLabel}</span>
+          </p>
+        </div>
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-900/10">
           <motion.div
             className={`h-full rounded-full ${BAR_STYLES[cls]}`}
             initial={false}
@@ -143,7 +154,34 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
             transition={{ type: 'spring', bounce: 0, duration: 0.6 }}
           />
         </div>
-        <p className="mt-2 text-xs text-stone-600">{v.done} of {v.total} logged · {sub}</p>
+      </motion.div>
+    );
+  };
+
+  const compact = (label: string, sub: string, v: { done: number; total: number }, i: number) => {
+    const p = pct(v.done, v.total);
+    const cls = pctClass(p);
+    return (
+      <motion.div
+        key={label}
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...CARD_SPRING, delay: 0.06 * (i + 1) }}
+        className="glass-card flex flex-1 items-center gap-3 rounded-2xl px-4 py-3"
+      >
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[13px] font-semibold text-stone-800">{label}</p>
+          <p className="text-xs text-stone-600">{v.done}/{v.total} · {sub}</p>
+          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-stone-900/10">
+            <motion.div
+              className={`h-full rounded-full ${BAR_STYLES[cls]}`}
+              initial={false}
+              animate={{ width: `${p}%` }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.6 }}
+            />
+          </div>
+        </div>
+        <span className={`font-sans text-2xl font-bold tabular-nums ${VALUE_STYLES[cls]}`}>{p}%</span>
       </motion.div>
     );
   };
@@ -204,10 +242,12 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
         </motion.section>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-        {card("Today's daily log", todayLabel, data.d, 0)}
-        {card("This week's log", 'This week', data.w, 1)}
-        {card("This month's log", 'This month', data.m, 2)}
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
+        {hero(data.d)}
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 lg:col-span-2 lg:flex-col">
+          {compact('This week', 'weekly', data.w, 0)}
+          {compact('This month', 'monthly', data.m, 1)}
+        </div>
       </div>
 
       <section className="glass-card rounded-2xl p-4 sm:p-5">
