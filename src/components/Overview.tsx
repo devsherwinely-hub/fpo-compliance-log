@@ -13,6 +13,7 @@ import {
 import type { RecordMap } from '../hooks/useRecords';
 import { tick } from '../lib/haptics';
 import { useCountUp } from '../hooks/useCountUp';
+import { DonutCard } from './DonutCard';
 import { TrendCard } from './TrendCard';
 
 interface OverviewProps {
@@ -264,7 +265,10 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
 
       <TrendCard records={records} locFilter={locFilter} />
 
-      <section className="glass-card rounded-2xl p-4 sm:p-5">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
+        <DonutCard records={records} locFilter={locFilter} />
+
+      <section className="glass-card rounded-2xl p-4 sm:p-5 lg:col-span-3">
         <div className="mb-2 flex items-baseline justify-between">
           <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-100">Outstanding today</h3>
           <span className="font-mono text-[11px] text-stone-600 dark:text-stone-400">daily items not yet logged</span>
@@ -296,6 +300,7 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           </ul>
         )}
       </section>
+      </div>
 
       <section className="glass-card overflow-hidden rounded-2xl">
         <div className="border-b border-stone-900/5 bg-white/40 dark:bg-white/5 px-4 py-3 sm:px-5">
