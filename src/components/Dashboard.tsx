@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { User } from '@supabase/supabase-js';
 import { useRecords } from '../hooks/useRecords';
@@ -54,6 +54,23 @@ export function Dashboard({ user }: { user: User | null }) {
 
   const { records, loading, saving, error: recordsError, refresh, saveEntry, undoEntry } = useRecords();
   const { push, stack } = useToasts();
+
+  // Power-user tabs: keys 1-6 jump sections. Ignored while typing.
+  useEffect(() => {
+    const order: NavSectionId[] = ['overview', 'daily', 'weekly', 'monthly', 'history', 'settings'];
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable)) return;
+      const i = ['1', '2', '3', '4', '5', '6'].indexOf(e.key);
+      if (i >= 0) {
+        setSection(order[i]);
+        setSidebarOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
   const handleDefaultTab = (t: NavSectionId) => {
     setDefaultTab(t);
@@ -115,7 +132,7 @@ export function Dashboard({ user }: { user: User | null }) {
   };
 
   return (
-    <div className="min-h-dvh bg-paper font-sans text-stone-800 dark:text-stone-100 antialiased dark:bg-black dark:text-stone-100">
+    <div className="min-h-dvh bg-paper font-sans text-stone-800 antialiased dark:bg-black dark:text-stone-100">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[110] focus:rounded-full focus:bg-stone-900 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white dark:focus:bg-white dark:focus:text-black"
@@ -204,7 +221,7 @@ export function Dashboard({ user }: { user: User | null }) {
           )}
 
           <p className="pb-6 pt-1 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
-            Showing: {section} · {Object.keys(records).length} records · HIPAA-audit log retained 6 yrs
+            Showing: {section} · {Object.keys(records).length} records · HIPAA-audit log retained 6 yrs · Keys 1–6 switch tabs
           </p>
         </main>
       </div>

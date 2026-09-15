@@ -279,7 +279,18 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           <span className="font-mono text-[11px] text-stone-600 dark:text-stone-400">daily items not yet logged</span>
         </div>
         {data.outstanding.length === 0 ? (
-          <p className="py-2 text-[13px] text-stone-600 dark:text-stone-400">Nothing outstanding for today.</p>
+          <div className="flex flex-wrap items-center justify-between gap-2 py-2">
+            <p className="text-[13px] text-stone-600 dark:text-stone-400">Nothing outstanding for today. Audit-ready.</p>
+            <motion.button
+              type="button"
+              onClick={() => { tick(); onGotoDaily(); }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+              className="h-8 shrink-0 rounded-full border border-stone-300/70 dark:border-white/20 bg-white/60 dark:bg-white/10 px-3.5 text-xs font-semibold text-stone-700 dark:text-stone-300"
+            >
+              Review daily log
+            </motion.button>
+          </div>
         ) : (
           <ul className="divide-y divide-stone-900/5 dark:divide-white/10">
             {data.outstanding.map((o, i) => (
@@ -333,6 +344,18 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
                     <td key={f} className="px-2 py-3 text-center">
                       <span className={`font-sans text-base font-bold tabular-nums ${VALUE_STYLES[pctClass(p)]}`}>{p}%</span>
                       <div className="font-mono text-[11px] text-stone-600 dark:text-stone-400">{v.done}/{v.total}</div>
+                      <div
+                        role="img"
+                        aria-label={`${loc} ${f}: ${p} percent`}
+                        className="mx-auto mt-1.5 h-1 w-16 overflow-hidden rounded-full bg-stone-900/10 dark:bg-white/15"
+                      >
+                        <motion.div
+                          className={`h-full origin-left rounded-full ${BAR_STYLES[pctClass(p)]}`}
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: p / 100 }}
+                          transition={{ type: 'spring', bounce: 0, duration: 0.6 }}
+                        />
+                      </div>
                     </td>
                   );
                 })}
