@@ -74,8 +74,8 @@ function ComplianceRateCard({ v }: { v: { done: number; total: number } }) {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-600 dark:text-stone-400">Compliance rate</p>
-          <p className={`display-tight mt-1 font-sans text-6xl font-bold tabular-nums sm:text-7xl ${VALUE_STYLES[cls]}`}>
-            {shown}<span className="text-3xl">%</span>
+          <p className={`display-tight mt-1 font-sans text-5xl font-bold tabular-nums sm:text-6xl ${VALUE_STYLES[cls]}`}>
+            {shown}<span className="text-2xl">%</span>
           </p>
           <p className="mt-1 text-[13px] text-stone-600 dark:text-stone-400">{v.done} of {v.total} checklists this period</p>
         </div>
@@ -111,7 +111,7 @@ function SecondaryStats({ stats }: { stats: SecondaryStat[] }) {
   return (
     <div className="glass-card grid grid-cols-1 divide-y divide-stone-900/5 rounded-2xl dark:divide-white/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0 lg:col-span-2">
       {stats.map((s) => (
-        <div key={s.label} className="px-4 py-3 sm:px-3.5">
+        <div key={s.label} className="px-4 py-3 sm:px-5">
           <p className={`font-sans text-2xl font-bold tabular-nums ${STAT_VALUE_STYLES[s.tone]}`}>{s.value}</p>
           <p className="text-[13px] font-semibold text-stone-800 dark:text-stone-100">{s.label}</p>
           <p className="text-xs text-stone-600 dark:text-stone-400">{s.context}</p>
@@ -134,7 +134,7 @@ function PeriodBreakdown({
         const pv = pct(p.v.done, p.v.total);
         const cls = pctClass(pv);
         return (
-          <div key={p.label} className="px-4 py-3 sm:px-3.5">
+          <div key={p.label} className="px-4 py-3 sm:px-5">
             <div className="flex items-baseline justify-between gap-2">
               <p className="text-[13px] font-semibold text-stone-800 dark:text-stone-100">{p.label}</p>
               <p className={`font-sans text-xl font-bold tabular-nums ${VALUE_STYLES[cls]}`}>{pv}%</p>
@@ -259,17 +259,17 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={CARD_SPRING}
-          className="rounded-2xl border border-alert-border bg-alert-bg px-4 py-3.5"
+          className="rounded-2xl border border-amber-200/70 bg-amber-50 px-4 py-3.5 dark:border-amber-500/30 dark:bg-amber-500/10"
         >
           <div className="flex items-start gap-2">
-            <WarningIcon className="mt-0.5 shrink-0 text-alert-text" />
+            <WarningIcon className="mt-0.5 shrink-0 text-amber-700 dark:text-amber-400" />
             <div className="min-w-0 flex-1">
-              <h2 className="text-sm font-semibold text-alert-text">
+              <h2 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
                 {data.flagged.length} reading{data.flagged.length > 1 ? 's' : ''} need attention
               </h2>
               <ul className="mt-1.5 space-y-1 pl-4">
                 {data.flagged.map((n) => (
-                  <li key={n} className="list-disc text-[13px] text-alert-text marker:text-alert-border">{n}</li>
+                  <li key={n} className="list-disc text-[13px] text-amber-800 marker:text-amber-500 dark:text-amber-300">{n}</li>
                 ))}
               </ul>
             </div>
