@@ -12,6 +12,7 @@ import {
 } from '../lib/catalog';
 import type { RecordMap } from '../hooks/useRecords';
 import { tick } from '../lib/haptics';
+import { TrendCard } from './TrendCard';
 
 interface OverviewProps {
   records: RecordMap;
@@ -249,6 +250,8 @@ export function Overview({ records, locFilter, onLocChange, onGotoDaily }: Overv
           {compact('This month', 'monthly', data.m, 1)}
         </div>
       </div>
+
+      <TrendCard records={records} locFilter={locFilter} />
 
       <section className="glass-card rounded-2xl p-4 sm:p-5">
         <div className="mb-2 flex items-baseline justify-between">
