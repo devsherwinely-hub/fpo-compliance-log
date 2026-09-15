@@ -66,15 +66,16 @@ export function useRecords() {
   // Live tick: teammates' saves land here without a reload. Requires the
   // table in the supabase_realtime publication (see supabase/realtime.sql).
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return;
-    const channel = supabase
+    const client = supabase;
+    if (!isSupabaseConfigured || !client) return;
+    const channel = client
       .channel('compliance-records-live')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'compliance_records' }, () => {
         void refresh(true);
       })
       .subscribe();
     return () => {
-      void supabase.removeChannel(channel);
+      void client.removeChannel(channel);
     };
   }, [refresh]);
 
